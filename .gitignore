@@ -22,3 +22,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+src/assets/emma.png
+src/assets/RabbitandFullMoonFree-Regular.otf
