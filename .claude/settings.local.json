@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/yumi/.nvm/**)",
+      "Read(//Users/yumi/.volta/**)",
+      "Bash(find /usr /opt /Users/yumi -name \"npm\" -o -name \"node\" 2>/dev/null | head -10)",
+      "Bash(ls /opt/pkg/env/active/bin/ | head -20)",
+      "Bash(ls /opt/pmk/env/global/bin/ 2>/dev/null | head -20)",
+      "Bash(/Users/yumi/Library/Caches/ms-playwright-go/1.50.1/node --version)",
+      "mcp__Claude_Preview__preview_start",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Bash(unzip -o \"/Users/yumi/Downloads/Usagi_Trial.zip\" -d \"/Users/yumi/Downloads/Usagi_Trial/\")",
+      "Read(//Users/yumi/Downloads/**)",
+      "Bash(cp \"/Users/yumi/Downloads/Usagi_Trial/Usagi_Trial/RabbitandFullMoonFree-Regular.otf\" \"/Users/yumi/Claude code/くれあのヘルスチェッカー/src/assets/\")"
+    ]
+  }
+}

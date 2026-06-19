@@ -1,0 +1,71 @@
+.emma-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.emma-img-wrap {
+  position: relative;
+  width: 160px;
+  height: 160px;
+}
+
+.emma-img {
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+  transition: filter 0.4s ease;
+}
+
+.emma-happy .emma-img {
+  animation: emma-bounce 0.6s ease-in-out infinite alternate;
+}
+
+.emma-overlay-text {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 1.8rem;
+  animation: float 1.5s ease-in-out infinite alternate;
+}
+
+.emma-crown {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2rem;
+}
+
+.emma-state-label {
+  font-size: 0.85rem;
+  color: #9c7bb5;
+  background: #f3e5f5;
+  padding: 3px 12px;
+  border-radius: 20px;
+}
+
+.emma-level-badge {
+  font-size: 1rem;
+  color: #7c6fa0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.emma-level-name {
+  font-size: 0.8rem;
+  color: #b39ddb;
+}
+
+@keyframes emma-bounce {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-10px); }
+}
+
+@keyframes float {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-6px); }
+}

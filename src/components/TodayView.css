@@ -1,0 +1,131 @@
+.today-view {
+  padding: 0 16px 24px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.today-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: #b39ddb;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.back-btn:hover { background: #f3e5f5; }
+
+.today-title {
+  font-size: 1.2rem;
+  color: #7c6fa0;
+  margin: 0;
+}
+
+.check-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 2px solid #e8d5f5;
+  border-radius: 16px;
+  padding: 14px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+  color: #7c6fa0;
+  text-align: left;
+}
+
+.check-item.checked {
+  background: #f3e5f5;
+  border-color: #b39ddb;
+}
+
+.check-emoji { font-size: 1.2rem; }
+.check-label { flex: 1; font-weight: 500; }
+.check-mark { font-size: 1.1rem; color: #9c7bb5; font-weight: bold; }
+
+.sleep-section {
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 24px;
+  border: 2px solid #e8d5f5;
+}
+
+.sleep-title {
+  font-size: 1rem;
+  color: #7c6fa0;
+  margin: 0 0 16px;
+}
+
+.sleep-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.sleep-row label {
+  color: #7c6fa0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.sleep-row select {
+  border: 2px solid #e8d5f5;
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  color: #5a5070;
+  background: #fdf6ff;
+  outline: none;
+  cursor: pointer;
+  min-width: 110px;
+}
+
+.sleep-result {
+  text-align: center;
+  color: #7c6fa0;
+  font-size: 1rem;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #f0e4ff;
+}
+
+.sleep-result strong {
+  color: #9c7bb5;
+  font-size: 1.15rem;
+}
+
+.save-btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #c9a6e8, #b39ddb);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+  letter-spacing: 1px;
+}
+
+.save-btn:hover { opacity: 0.9; }
+.save-btn:active { transform: scale(0.98); }

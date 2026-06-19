@@ -1,0 +1,101 @@
+.app {
+  min-height: 100dvh;
+  background: linear-gradient(160deg, #fdf0ff 0%, #f0f4ff 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  text-align: center;
+  padding: 20px 16px 8px;
+}
+
+.app-title {
+  font-size: 1.3rem;
+  color: #7c6fa0;
+  margin: 0;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.emma-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0 8px;
+  gap: 8px;
+}
+
+.emma-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.emma-name {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #7c6fa0;
+}
+
+.emma-level-text {
+  font-size: 0.85rem;
+  color: #b39ddb;
+}
+
+.streak-text {
+  font-size: 0.85rem;
+  color: #9c7bb5;
+  background: #f3e5f5;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.save-toast {
+  text-align: center;
+  color: #9c7bb5;
+  font-size: 0.9rem;
+  padding: 8px;
+  animation: fade-in 0.3s;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.tab-bar {
+  display: flex;
+  margin: 8px 16px 0;
+  background: white;
+  border-radius: 16px;
+  padding: 4px;
+  border: 2px solid #e8d5f5;
+  max-width: 480px;
+  align-self: center;
+  width: calc(100% - 32px);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 12px;
+  background: none;
+  color: #b39ddb;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, #e8d5f5, #d4c4f0);
+  color: #6a4fa0;
+}
+
+.app-main {
+  flex: 1;
+  padding-top: 16px;
+}
