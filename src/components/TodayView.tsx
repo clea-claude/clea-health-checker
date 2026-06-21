@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { DayRecord } from '../types';
-import { calcSleepMinutes, formatSleep, SUIMIN_LIST, KISHO_LIST, todayStr } from '../utils';
+import { calcSleepMinutes, formatSleep, SUIMIN_LIST, KISHO_LIST, todayStr, getStreak } from '../utils';
 import './TodayView.css';
 
 interface Props {
@@ -31,6 +31,25 @@ const SNACK_OPTIONS = [
 
 const SNACK_INFO = `「我慢できた！」何も食べなかった\n「少しだけ」量が少なかったりヘルシーなもの（300kcal以下が目安）\n「食べちゃった」🐖🤛`;
 
+function buildPointRows(
+  form: Omit<DayRecord, 'date' | 'sleepMinutes'>,
+  sleepMin: number,
+  streak: number
+): { label: string; pts: number }[] {
+  const rows: { label: string; pts: number }[] = [];
+  const baseBonus = Math.min(4 + streak, 10);
+  rows.push({ label: `きろくボーナス（${streak}日連続）`, pts: baseBonus });
+  if (form.haiBen)      rows.push({ label: 'お通じ ☘️',        pts: 5 });
+  if (form.asaWalking)  rows.push({ label: '朝ウォーキング 🌅', pts: 5 });
+  if (form.nichuUndou)  rows.push({ label: '運動 🏃',           pts: 10 });
+  if (form.snack === 'none') rows.push({ label: 'おやつ我慢 💪',   pts: 5 });
+  if (form.snack === 'ate')  rows.push({ label: 'おやつ食べた 🍬', pts: -5 });
+  if (sleepMin >= 7 * 60)     rows.push({ label: '睡眠7h以上 😴',  pts: 10 });
+  else if (sleepMin > 0 && sleepMin < 6 * 60)
+    rows.push({ label: '睡眠6h未満 😵',  pts: -10 });
+  return rows;
+}
+
 export default function TodayView({ records, onSave, editDate, onBack }: Props) {
   const targetDate = editDate ?? todayStr();
   const existing = records[targetDate];
@@ -41,6 +60,7 @@ export default function TodayView({ records, onSave, editDate, onBack }: Props) 
   });
   const [showSnackInfo, setShowSnackInfo] = useState(false);
   const [snackOpen, setSnackOpen] = useState(false);
+  const [showPointsPopup, setShowPointsPopup] = useState(false);
 
   useEffect(() => {
     const rec = records[targetDate];
@@ -48,6 +68,9 @@ export default function TodayView({ records, onSave, editDate, onBack }: Props) 
   }, [targetDate]);
 
   const sleepMin = calcSleepMinutes(form.suiminJikan, form.kiShoBjikan);
+  const streak = getStreak(records, targetDate);
+  const pointRows = buildPointRows(form, sleepMin, streak);
+  const totalPts = pointRows.reduce((s, r) => s + r.pts, 0);
 
   const toggle = (key: keyof typeof EMPTY) => {
     if (typeof form[key] !== 'boolean') return;
@@ -167,9 +190,42 @@ export default function TodayView({ records, onSave, editDate, onBack }: Props) 
         </div>
       </div>
 
-      <button className="save-btn" onClick={handleSave}>
+      <button className="save-btn" onClick={() => setShowPointsPopup(true)}>
         きろくする 🐾
       </button>
+
+      {/* ポイント内訳ポップアップ */}
+      {showPointsPopup && (
+        <div className="points-overlay" onClick={() => setShowPointsPopup(false)}>
+          <div className="points-popup" onClick={e => e.stopPropagation()}>
+            <h3 className="points-popup-title">🏅 今日のポイント</h3>
+            <div className="points-rows">
+              {pointRows.map(({ label, pts }) => (
+                <div key={label} className="points-row">
+                  <span className="points-row-label">{label}</span>
+                  <span className={`points-row-val ${pts < 0 ? 'neg' : 'pos'}`}>
+                    {pts >= 0 ? `+${pts}` : pts}pt
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="points-total">
+              合計
+              <span className={totalPts < 0 ? 'neg' : 'pos'}>
+                {totalPts >= 0 ? `+${totalPts}` : totalPts}pt
+              </span>
+            </div>
+            <div className="points-popup-actions">
+              <button className="points-cancel-btn" onClick={() => setShowPointsPopup(false)}>
+                もどる
+              </button>
+              <button className="points-confirm-btn" onClick={() => { setShowPointsPopup(false); handleSave(); }}>
+                きろくする 🐾
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

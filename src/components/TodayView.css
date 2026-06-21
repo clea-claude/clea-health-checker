@@ -247,3 +247,112 @@
 
 .save-btn:hover { opacity: 0.9; }
 .save-btn:active { transform: scale(0.98); }
+
+/* ===== ポイント内訳ポップアップ ===== */
+.points-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 300;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.points-popup {
+  background: #fff;
+  border-radius: 24px 24px 0 0;
+  padding: 28px 24px 36px;
+  width: 100%;
+  max-width: 480px;
+  animation: slide-up 0.25s ease;
+}
+
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.points-popup-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #5c4033;
+  margin: 0 0 20px;
+  text-align: center;
+}
+
+.points-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.points-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: #faf4ec;
+  border-radius: 12px;
+}
+
+.points-row-label {
+  font-size: 0.9rem;
+  color: #5c4033;
+}
+
+.points-row-val {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.points-row-val.pos { color: #7dbf8e; }
+.points-row-val.neg { color: #e8907a; }
+
+.points-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 14px;
+  border-top: 2px solid #f0e0c8;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #5c4033;
+  margin-bottom: 24px;
+}
+
+.points-total .pos { color: #7dbf8e; font-size: 1.3rem; }
+.points-total .neg { color: #e8907a; font-size: 1.3rem; }
+
+.points-popup-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.points-cancel-btn {
+  flex: 1;
+  padding: 14px;
+  background: #f5e6d0;
+  color: #9c7b6a;
+  border: none;
+  border-radius: 16px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.points-confirm-btn {
+  flex: 2;
+  padding: 14px;
+  background: #c49a6c;
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(196, 154, 108, 0.4);
+}
+.points-confirm-btn:active { transform: scale(0.98); }
