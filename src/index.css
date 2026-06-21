@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap');
 
 * {
   box-sizing: border-box;
@@ -7,13 +7,14 @@
 body {
   margin: 0;
   font-family: 'M PLUS Rounded 1c', sans-serif;
-  background: #fdf0ff;
+  background: #faf4ec;
   -webkit-font-smoothing: antialiased;
+  color: #5c4033;
 }
 
 #root {
   width: 100%;
-  max-width: 540px;
+  max-width: 480px;
   margin: 0 auto;
   min-height: 100dvh;
 }

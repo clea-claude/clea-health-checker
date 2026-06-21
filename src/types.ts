@@ -10,6 +10,7 @@ export interface DayRecord {
   suiminJikan: string; // "20:00" など
   kiShoBjikan: string; // "06:00" など
   sleepMinutes: number;
+  snack: 'none' | 'little' | 'ate' | '';
 }
 
 export type EmmaState = 'happy' | 'normal' | 'sleepy' | 'deadEyes';

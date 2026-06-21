@@ -1,101 +1,391 @@
 .app {
   min-height: 100dvh;
-  background: linear-gradient(160deg, #fdf0ff 0%, #f0f4ff 100%);
+  background: #faf4ec;
   display: flex;
   flex-direction: column;
 }
 
+/* ===== ヘッダー ===== */
 .app-header {
-  text-align: center;
-  padding: 20px 16px 8px;
-}
-
-.app-title {
-  font-size: 1.3rem;
-  color: #7c6fa0;
-  margin: 0;
-  font-weight: bold;
-  letter-spacing: 1px;
-}
-
-.emma-section {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #fff;
+  border-bottom: 1px solid #f0e0c8;
+  padding: 10px 16px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 16px 0 8px;
-  gap: 8px;
+  gap: 10px;
 }
 
-.emma-info {
+.header-emma-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #f5e6d0;
+  overflow: hidden;
+  flex-shrink: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  border: 2px solid #e8c9a0;
 }
 
-.emma-name {
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #7c6fa0;
+.header-emma-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.emma-level-text {
-  font-size: 0.85rem;
-  color: #b39ddb;
+.header-emma-icon-placeholder {
+  font-size: 1.4rem;
 }
 
-.streak-text {
-  font-size: 0.85rem;
-  color: #9c7bb5;
-  background: #f3e5f5;
-  padding: 4px 12px;
+.header-info {
+  flex: 1;
+}
+
+.header-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #5c4033;
+  line-height: 1.2;
+}
+
+.header-level {
+  display: inline-block;
+  background: #c49a6c;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
   border-radius: 20px;
+  margin-right: 4px;
 }
 
-.save-toast {
+.header-level-name {
+  font-size: 0.75rem;
+  color: #9c7b6a;
+}
+
+.header-streak-bar {
+  height: 4px;
+  background: #f0e0c8;
+  border-radius: 2px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.header-streak-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #c49a6c, #e8a87c);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+/* ===== ハンバーガーボタン ===== */
+.hamburger-btn {
+  background: none;
+  border: 1.5px solid #f0e0c8;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  font-size: 1.4rem;
+  color: #c49a6c;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+.hamburger-btn:hover { background: #f5e6d0; }
+
+/* ===== メニュードロワー ===== */
+.menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 200;
+}
+
+.menu-drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 75%;
+  max-width: 280px;
+  height: 100%;
+  background: #fff;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  animation: slide-in 0.25s ease;
+}
+
+@keyframes slide-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+.menu-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid #f0e0c8;
+}
+
+.menu-drawer-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #5c4033;
+}
+
+.menu-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: #9c7b6a;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-family: inherit;
+}
+
+.menu-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 0;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: #5c4033;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.menu-item:hover:not(:disabled) { background: #faf4ec; }
+
+.menu-item-disabled {
+  color: #c0a898;
+  cursor: default;
+}
+
+.menu-coming-soon {
+  font-size: 0.7rem;
+  background: #f0e0c8;
+  color: #9c7b6a;
+  padding: 2px 8px;
+  border-radius: 20px;
+  margin-left: auto;
+}
+
+.menu-divider {
+  height: 1px;
+  background: #f0e0c8;
+  margin: 8px 20px;
+}
+
+/* ===== メイン ===== */
+.app-main {
+  flex: 1;
+  padding-bottom: 24px;
+}
+
+/* ===== ホーム画面 ===== */
+.home-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 16px 24px;
+}
+
+.emma-main-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0 8px;
+  width: 100%;
+}
+
+.emma-main-img {
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.12));
+  transition: filter 0.4s ease;
+}
+
+.emma-main-img.state-happy {
+  animation: emma-bounce 0.6s ease-in-out infinite alternate;
+}
+.emma-main-img.state-sleepy {
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.12)) brightness(0.85) saturate(0.6);
+}
+.emma-main-img.state-deadEyes {
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.12)) grayscale(0.8) brightness(0.75);
+}
+
+.emma-placeholder {
+  width: 180px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 6rem;
+  background: #f5e6d0;
+  border-radius: 50%;
+}
+
+@keyframes emma-bounce {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-10px); }
+}
+
+/* 吹き出し */
+.speech-bubble {
+  background: white;
+  border: 2px solid #f0e0c8;
+  border-radius: 20px;
+  padding: 14px 20px;
+  margin: 12px 0 20px;
+  width: 100%;
+  max-width: 360px;
   text-align: center;
-  color: #9c7bb5;
+  font-size: 0.95rem;
+  color: #5c4033;
+  position: relative;
+  line-height: 1.6;
+}
+
+.speech-bubble::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-bottom-color: #f0e0c8;
+}
+
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-bottom-color: white;
+}
+
+/* きろくボタン */
+.kiroku-btn {
+  width: 100%;
+  max-width: 360px;
+  padding: 20px;
+  background: #c49a6c;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 2px;
+  box-shadow: 0 4px 12px rgba(196, 154, 108, 0.4);
+}
+
+.kiroku-btn:hover { opacity: 0.92; }
+.kiroku-btn:active { transform: scale(0.98); }
+
+/* 統計カード */
+.stats-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 360px;
+  margin-top: 16px;
+}
+
+.stat-card {
+  flex: 1;
+  background: white;
+  border: 1.5px solid #f0e0c8;
+  border-radius: 16px;
+  padding: 14px 10px;
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  color: #9c7b6a;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #c49a6c;
+  line-height: 1;
+}
+
+.stat-unit {
+  font-size: 0.75rem;
+  color: #9c7b6a;
+}
+
+/* カレンダーセクション */
+.home-calendar-section {
+  width: 100%;
+  max-width: 360px;
+  margin-top: 20px;
+  background: white;
+  border-radius: 20px;
+  border: 1.5px solid #f0e0c8;
+  overflow: hidden;
+}
+
+.home-calendar-header {
+  padding: 16px 16px 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #5c4033;
+}
+
+/* 今日の日付 */
+.today-date-label {
+  font-size: 0.85rem;
+  color: #9c7b6a;
+  margin-top: 12px;
+  text-align: center;
+}
+
+/* ===== トースト ===== */
+.save-toast {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #c49a6c;
+  color: white;
+  padding: 10px 24px;
+  border-radius: 20px;
   font-size: 0.9rem;
-  padding: 8px;
+  font-weight: 700;
+  z-index: 200;
   animation: fade-in 0.3s;
+  white-space: nowrap;
 }
 
 @keyframes fade-in {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.tab-bar {
-  display: flex;
-  margin: 8px 16px 0;
-  background: white;
-  border-radius: 16px;
-  padding: 4px;
-  border: 2px solid #e8d5f5;
-  max-width: 480px;
-  align-self: center;
-  width: calc(100% - 32px);
-}
-
-.tab-btn {
-  flex: 1;
-  padding: 10px;
-  border: none;
-  border-radius: 12px;
-  background: none;
-  color: #b39ddb;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.tab-btn.active {
-  background: linear-gradient(135deg, #e8d5f5, #d4c4f0);
-  color: #6a4fa0;
-}
-
-.app-main {
-  flex: 1;
-  padding-top: 16px;
+  from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }

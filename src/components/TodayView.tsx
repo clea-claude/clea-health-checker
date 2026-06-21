@@ -6,7 +6,7 @@ import './TodayView.css';
 interface Props {
   records: Record<string, DayRecord>;
   onSave: (date: string, rec: DayRecord) => void;
-  editDate?: string; // カレンダーから編集モードで開く場合
+  editDate?: string;
   onBack?: () => void;
 }
 
@@ -20,7 +20,20 @@ const EMPTY: Omit<DayRecord, 'date' | 'sleepMinutes'> = {
   nichuUndou: false,
   suiminJikan: '',
   kiShoBjikan: '',
+  snack: '',
 };
+
+const SNACK_OPTIONS = [
+  { value: 'none',   label: '我慢できた！', emoji: '💪', color: '#7dbf8e' },
+  { value: 'little', label: 'すこしだけ',   emoji: '🌿', color: '#c49a6c' },
+  { value: 'ate',    label: '食べちゃった', emoji: '🐖', color: '#e8907a' },
+] as const;
+
+const SNACK_INFO = [
+  { label: '我慢できた！', desc: '何も食べなかった🙌' },
+  { label: 'すこしだけ',   desc: '量が少なかったり、ヘルシーなもの（300kcal以下が目安）🥗' },
+  { label: '食べちゃった', desc: '🐖🤛 …でもきろくえらい！' },
+];
 
 export default function TodayView({ records, onSave, editDate, onBack }: Props) {
   const targetDate = editDate ?? todayStr();
@@ -30,6 +43,7 @@ export default function TodayView({ records, onSave, editDate, onBack }: Props) 
     ...EMPTY,
     ...existing,
   });
+  const [showSnackInfo, setShowSnackInfo] = useState(false);
 
   useEffect(() => {
     const rec = records[targetDate];
@@ -50,13 +64,13 @@ export default function TodayView({ records, onSave, editDate, onBack }: Props) 
   const isToday = targetDate === todayStr();
 
   const labelMap: { key: keyof typeof EMPTY; label: string; emoji: string }[] = [
-    { key: 'haiBen',      label: '排便',      emoji: '🚽' },
-    { key: 'seiriStart',  label: '生理・開始', emoji: '🔴' },
-    { key: 'seiriEnd',    label: '生理・終了', emoji: '⭕' },
-    { key: 'zutsuu',      label: '頭痛',      emoji: '🤕' },
-    { key: 'zutsuuYaku',  label: '頭痛薬',    emoji: '💊' },
+    { key: 'haiBen',      label: '排便',          emoji: '🚽' },
+    { key: 'seiriStart',  label: '生理・開始',     emoji: '🔴' },
+    { key: 'seiriEnd',    label: '生理・終了',     emoji: '⭕' },
+    { key: 'zutsuu',      label: '頭痛',          emoji: '🤕' },
+    { key: 'zutsuuYaku',  label: '頭痛薬',        emoji: '💊' },
     { key: 'asaWalking',  label: '朝ウォーキング', emoji: '🌅' },
-    { key: 'nichuUndou',  label: '運動', emoji: '🏃' },
+    { key: 'nichuUndou',  label: '運動',          emoji: '🏃' },
   ];
 
   const dateLabel = isToday
@@ -67,9 +81,9 @@ export default function TodayView({ records, onSave, editDate, onBack }: Props) 
     <div className="today-view">
       <div className="today-header">
         {onBack && (
-          <button className="back-btn" onClick={onBack}>← 戻る</button>
+          <button className="back-btn" onClick={onBack}>← もどる</button>
         )}
-        <h2 className="today-title">{dateLabel}の記録</h2>
+        <h2 className="today-title">{dateLabel}のきろく</h2>
       </div>
 
       <div className="check-grid">
@@ -86,8 +100,42 @@ export default function TodayView({ records, onSave, editDate, onBack }: Props) 
         ))}
       </div>
 
+      {/* 間食セクション */}
+      <div className="snack-section">
+        <div className="snack-title-row">
+          <h3 className="snack-title">🍬 かんしょく</h3>
+          <button className="info-btn" onClick={() => setShowSnackInfo(v => !v)}>ⓘ</button>
+        </div>
+
+        {showSnackInfo && (
+          <div className="snack-info-popup">
+            {SNACK_INFO.map(({ label, desc }) => (
+              <div key={label} className="snack-info-row">
+                <span className="snack-info-label">「{label}」</span>
+                <span className="snack-info-desc">{desc}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="snack-options">
+          {SNACK_OPTIONS.map(({ value, label, emoji, color }) => (
+            <button
+              key={value}
+              className={`snack-option ${form.snack === value ? 'selected' : ''}`}
+              style={form.snack === value ? { borderColor: color, background: `${color}18` } : {}}
+              onClick={() => setForm(f => ({ ...f, snack: value }))}
+            >
+              <span className="snack-emoji">{emoji}</span>
+              <span className="snack-label">{label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 睡眠セクション */}
       <div className="sleep-section">
-        <h3 className="sleep-title">💤 睡眠</h3>
+        <h3 className="sleep-title">💤 すいみん</h3>
         <div className="sleep-row">
           <label>就寝時間</label>
           <select
@@ -114,7 +162,7 @@ export default function TodayView({ records, onSave, editDate, onBack }: Props) 
       </div>
 
       <button className="save-btn" onClick={handleSave}>
-        保存する 🐾
+        きろくする 🐾
       </button>
     </div>
   );
