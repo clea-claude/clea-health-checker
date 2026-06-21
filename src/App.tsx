@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { DayRecord, EmmaState, EmmaLevel } from './types';
-import { getEmmaState, getStreak, getLevel, todayStr } from './utils';
+import { getEmmaState, getStreak, getLevel, todayStr, calcPoints } from './utils';
 import TodayView from './components/TodayView';
 import CalendarView from './components/CalendarView';
 import emmaImg from './assets/emma.png';
@@ -37,6 +37,7 @@ export default function App() {
   const [view, setView] = useState<View>('home');
   const [editDate, setEditDate] = useState<string | undefined>(undefined);
   const [saved, setSaved] = useState(false);
+  const [lastPoints, setLastPoints] = useState<number | null>(null);
   const [imgError, setImgError] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -45,6 +46,7 @@ export default function App() {
   const streak = getStreak(records, today);
   const level = getLevel(streak);
   const emmaState = getEmmaState(todayRec?.sleepMinutes ?? 0);
+  const todayPoints = todayRec ? calcPoints(todayRec, streak) : null;
 
   // 今日の日付・曜日
   const dateObj = new Date();
@@ -56,9 +58,12 @@ export default function App() {
   }, [records]);
 
   const handleSave = (date: string, rec: DayRecord) => {
-    setRecords(r => ({ ...r, [date]: rec }));
+    const newRecords = { ...records, [date]: rec };
+    setRecords(newRecords);
+    const newStreak = getStreak(newRecords, date);
+    setLastPoints(calcPoints(rec, newStreak));
     setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setTimeout(() => setSaved(false), 3000);
     setView('home');
     setEditDate(undefined);
   };
@@ -135,7 +140,16 @@ export default function App() {
         <button className="hamburger-btn" onClick={() => setMenuOpen(true)}>≡</button>
       </header>
 
-      {saved && <div className="save-toast">きろくしたよ！🐾</div>}
+      {saved && (
+        <div className="save-toast">
+          きろくしたよ！🐾
+          {lastPoints !== null && (
+            <span className="save-toast-pts">
+              {lastPoints >= 0 ? `+${lastPoints}` : lastPoints}pt
+            </span>
+          )}
+        </div>
+      )}
 
       <main className="app-main">
         {view === 'home' ? (
@@ -184,6 +198,13 @@ export default function App() {
                   {todayRec?.sleepMinutes
                     ? <span className="stat-unit">じかん</span>
                     : null}
+                </div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">きょうのポイント</div>
+                <div className="stat-value" style={{ color: todayPoints !== null && todayPoints < 0 ? '#e8907a' : '#c49a6c' }}>
+                  {todayPoints !== null ? (todayPoints >= 0 ? `+${todayPoints}` : todayPoints) : '—'}
+                  {todayPoints !== null && <span className="stat-unit">pt</span>}
                 </div>
               </div>
             </div>

@@ -87,3 +87,22 @@ export function hasAnyRecord(rec: DayRecord | undefined): boolean {
     !!rec.suiminJikan || !!rec.kiShoBjikan
   );
 }
+
+export function calcPoints(rec: DayRecord, streak: number): number {
+  let pts = 0;
+
+  // きろくしただけボーナス（連続日数に応じて増加、上限10pt）
+  pts += Math.min(4 + streak, 10);
+
+  if (rec.haiBen) pts += 5;
+  if (rec.asaWalking) pts += 5;
+  if (rec.nichuUndou) pts += 10;
+
+  if (rec.snack === 'none') pts += 5;
+  if (rec.snack === 'ate') pts -= 5;
+
+  if (rec.sleepMinutes >= 7 * 60) pts += 10;
+  else if (rec.sleepMinutes > 0 && rec.sleepMinutes < 6 * 60) pts -= 10;
+
+  return pts;
+}
