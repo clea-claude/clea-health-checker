@@ -26,14 +26,10 @@ const EMPTY: Omit<DayRecord, 'date' | 'sleepMinutes'> = {
 const SNACK_OPTIONS = [
   { value: 'none',   label: '我慢できた！', emoji: '💪', color: '#7dbf8e' },
   { value: 'little', label: 'すこしだけ',   emoji: '🌿', color: '#c49a6c' },
-  { value: 'ate',    label: '食べちゃった', emoji: '🐖', color: '#e8907a' },
+  { value: 'ate',    label: 'おやつ食べた', emoji: '🍬', color: '#e8907a' },
 ] as const;
 
-const SNACK_INFO = [
-  { label: '我慢できた！', desc: '何も食べなかった🙌' },
-  { label: 'すこしだけ',   desc: '量が少なかったり、ヘルシーなもの（300kcal以下が目安）🥗' },
-  { label: '食べちゃった', desc: '🐖🤛 …でもきろくえらい！' },
-];
+const SNACK_INFO = '夜に1日をふりかえろう。3タップでOK。やすんでも基本ポイントは入るよ。ゼロにしないのがいちばん🐿';
 
 export default function TodayView({ records, onSave, editDate, onBack }: Props) {
   const targetDate = editDate ?? todayStr();
@@ -44,6 +40,7 @@ export default function TodayView({ records, onSave, editDate, onBack }: Props) 
     ...existing,
   });
   const [showSnackInfo, setShowSnackInfo] = useState(false);
+  const [snackOpen, setSnackOpen] = useState(false);
 
   useEffect(() => {
     const rec = records[targetDate];
@@ -100,37 +97,48 @@ export default function TodayView({ records, onSave, editDate, onBack }: Props) 
         ))}
       </div>
 
-      {/* 間食セクション */}
+      {/* おやつセクション */}
       <div className="snack-section">
         <div className="snack-title-row">
-          <h3 className="snack-title">🍬 かんしょく</h3>
-          <button className="info-btn" onClick={() => setShowSnackInfo(v => !v)}>ⓘ</button>
+          <button
+            className={`snack-toggle-btn ${snackOpen ? 'open' : ''} ${form.snack ? 'has-value' : ''}`}
+            onClick={() => setSnackOpen(v => !v)}
+          >
+            <span className="check-emoji">🍬</span>
+            <span className="check-label">おやつ</span>
+            {form.snack && (
+              <span className="snack-selected-badge">
+                {SNACK_OPTIONS.find(o => o.value === form.snack)?.emoji}
+              </span>
+            )}
+            <span className="snack-arrow">{snackOpen ? '▲' : '▼'}</span>
+          </button>
+          <div className="info-btn-wrap">
+            <button className="info-btn" onClick={() => setShowSnackInfo(v => !v)}>ⓘ</button>
+            {showSnackInfo && (
+              <div className="snack-info-tooltip">
+                {SNACK_INFO}
+              </div>
+            )}
+          </div>
         </div>
 
-        {showSnackInfo && (
-          <div className="snack-info-popup">
-            {SNACK_INFO.map(({ label, desc }) => (
-              <div key={label} className="snack-info-row">
-                <span className="snack-info-label">「{label}」</span>
-                <span className="snack-info-desc">{desc}</span>
-              </div>
+        {snackOpen && (
+          <div className="snack-options">
+            {SNACK_OPTIONS.map(({ value, label, emoji, color }) => (
+              <button
+                key={value}
+                className={`snack-option ${form.snack === value ? 'selected' : ''}`}
+                style={form.snack === value ? { borderColor: color, background: `${color}18` } : {}}
+                onClick={() => { setForm(f => ({ ...f, snack: value })); setSnackOpen(false); }}
+              >
+                <span className="snack-emoji">{emoji}</span>
+                <span className="snack-label">{label}</span>
+                {form.snack === value && <span className="check-mark">✓</span>}
+              </button>
             ))}
           </div>
         )}
-
-        <div className="snack-options">
-          {SNACK_OPTIONS.map(({ value, label, emoji, color }) => (
-            <button
-              key={value}
-              className={`snack-option ${form.snack === value ? 'selected' : ''}`}
-              style={form.snack === value ? { borderColor: color, background: `${color}18` } : {}}
-              onClick={() => setForm(f => ({ ...f, snack: value }))}
-            >
-              <span className="snack-emoji">{emoji}</span>
-              <span className="snack-label">{label}</span>
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* 睡眠セクション */}

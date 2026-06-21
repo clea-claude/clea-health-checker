@@ -64,36 +64,61 @@
 .check-label { flex: 1; font-weight: 500; }
 .check-mark { font-size: 1.1rem; color: #c49a6c; font-weight: bold; }
 
-/* ===== 間食セクション ===== */
+/* ===== おやつセクション ===== */
 .snack-section {
-  background: white;
-  border-radius: 20px;
-  padding: 20px;
-  margin-bottom: 16px;
-  border: 2px solid #f0e0c8;
+  margin-bottom: 10px;
 }
 
 .snack-title-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
 }
 
-.snack-title {
-  font-size: 1rem;
-  color: #5c4033;
-  font-weight: 700;
-  margin: 0;
+.snack-toggle-btn {
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 2px solid #f0e0c8;
+  border-radius: 16px;
+  padding: 14px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+  color: #5c4033;
+  text-align: left;
+  font-family: inherit;
+}
+.snack-toggle-btn:hover { background: #fdf0e0; }
+.snack-toggle-btn.has-value {
+  background: #fdf0e0;
+  border-color: #c49a6c;
+}
+
+.snack-selected-badge {
+  font-size: 1.1rem;
+  margin-left: auto;
+  margin-right: 4px;
+}
+
+.snack-arrow {
+  font-size: 0.65rem;
+  color: #c49a6c;
+}
+
+.info-btn-wrap {
+  position: relative;
+  flex-shrink: 0;
 }
 
 .info-btn {
   background: none;
   border: 1.5px solid #f0e0c8;
   border-radius: 50%;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   font-size: 0.85rem;
   color: #c49a6c;
   cursor: pointer;
@@ -102,43 +127,30 @@
   justify-content: center;
   font-family: inherit;
   transition: background 0.2s;
-  flex-shrink: 0;
 }
 .info-btn:hover { background: #f5e6d0; }
 
-.snack-info-popup {
-  background: #fdf8f2;
-  border: 1.5px solid #f0e0c8;
-  border-radius: 14px;
+.snack-info-tooltip {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  background: rgba(40, 40, 40, 0.92);
+  color: #fff;
+  font-size: 0.82rem;
+  line-height: 1.6;
   padding: 12px 14px;
-  margin-bottom: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.snack-info-row {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.snack-info-label {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #c49a6c;
-}
-
-.snack-info-desc {
-  font-size: 0.8rem;
-  color: #9c7b6a;
-  line-height: 1.5;
+  border-radius: 12px;
+  width: 220px;
+  z-index: 50;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
 }
 
 .snack-options {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-top: 8px;
 }
 
 .snack-option {
@@ -146,7 +158,7 @@
   align-items: center;
   gap: 10px;
   padding: 14px 16px;
-  background: #faf4ec;
+  background: white;
   border: 2px solid #f0e0c8;
   border-radius: 14px;
   cursor: pointer;
@@ -154,11 +166,11 @@
   transition: all 0.2s;
   text-align: left;
 }
-.snack-option:hover { background: #f5e6d0; }
+.snack-option:hover { background: #fdf0e0; }
 .snack-option.selected { font-weight: 700; }
 
 .snack-emoji { font-size: 1.3rem; }
-.snack-label { font-size: 0.95rem; color: #5c4033; }
+.snack-label { font-size: 0.95rem; color: #5c4033; flex: 1; }
 
 .sleep-section {
   background: white;
