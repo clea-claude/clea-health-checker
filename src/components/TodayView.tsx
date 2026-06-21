@@ -29,7 +29,7 @@ const SNACK_OPTIONS = [
   { value: 'ate',    label: 'おやつ食べた', emoji: '🍬', color: '#e8907a' },
 ] as const;
 
-const SNACK_INFO = '夜に1日をふりかえろう。3タップでOK。やすんでも基本ポイントは入るよ。ゼロにしないのがいちばん🐿';
+const SNACK_INFO = `「我慢できた！」何も食べなかった\n「少しだけ」量が少なかったりヘルシーなもの（300kcal以下が目安）\n「食べちゃった」🐖🤛`;
 
 export default function TodayView({ records, onSave, editDate, onBack }: Props) {
   const targetDate = editDate ?? todayStr();

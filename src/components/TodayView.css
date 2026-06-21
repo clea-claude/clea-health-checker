@@ -132,7 +132,7 @@
 
 .snack-info-tooltip {
   position: absolute;
-  right: 0;
+  right: -4px;
   top: calc(100% + 8px);
   background: rgba(40, 40, 40, 0.92);
   color: #fff;
@@ -140,10 +140,12 @@
   line-height: 1.6;
   padding: 12px 14px;
   border-radius: 12px;
-  width: 220px;
+  width: 240px;
+  max-width: calc(100vw - 32px);
   z-index: 50;
   pointer-events: none;
   box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  white-space: pre-line;
 }
 
 .snack-options {
