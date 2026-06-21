@@ -61,9 +61,7 @@ export default function TodayView({ records, onSave, editDate, onBack }: Props) 
   const isToday = targetDate === todayStr();
 
   const labelMap: { key: keyof typeof EMPTY; label: string; emoji: string }[] = [
-    { key: 'haiBen',      label: '排便',          emoji: '🚽' },
-    { key: 'seiriStart',  label: '生理・開始',     emoji: '🔴' },
-    { key: 'seiriEnd',    label: '生理・終了',     emoji: '⭕' },
+    { key: 'haiBen',      label: 'お通じ',         emoji: '☘️' },
     { key: 'zutsuu',      label: '頭痛',          emoji: '🤕' },
     { key: 'zutsuuYaku',  label: '頭痛薬',        emoji: '💊' },
     { key: 'asaWalking',  label: '朝ウォーキング', emoji: '🌅' },
