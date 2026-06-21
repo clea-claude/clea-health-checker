@@ -202,7 +202,7 @@ export default function App() {
                 </div>
               </div>
               <div className="stat-card">
-                <div className="stat-label">きょうのすいみん</div>
+                <div className="stat-label">すいみん</div>
                 <div className="stat-value">
                   {todayRec?.sleepMinutes
                     ? `${Math.floor(todayRec.sleepMinutes / 60)}`
@@ -213,7 +213,7 @@ export default function App() {
                 </div>
               </div>
               <div className="stat-card">
-                <div className="stat-label">きょうのポイント</div>
+                <div className="stat-label">ポイント</div>
                 <div className="stat-value" style={{ color: todayPoints !== null && todayPoints < 0 ? '#e8907a' : '#c49a6c' }}>
                   {todayPoints !== null ? (todayPoints >= 0 ? `+${todayPoints}` : todayPoints) : '—'}
                   {todayPoints !== null && <span className="stat-unit">pt</span>}
