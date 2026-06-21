@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { DayRecord, EmmaState, EmmaLevel } from './types';
-import { getEmmaState, getStreak, getLevel, todayStr, calcPoints } from './utils';
+import { getEmmaState, getStreak, getLevel, todayStr, calcPoints, sumPointsForDays } from './utils';
 import TodayView from './components/TodayView';
 import CalendarView from './components/CalendarView';
 import emmaImg from './assets/emma.png';
@@ -47,6 +47,18 @@ export default function App() {
   const level = getLevel(streak);
   const emmaState = getEmmaState(todayRec?.sleepMinutes ?? 0);
   const todayPoints = todayRec ? calcPoints(todayRec, streak) : null;
+
+  // 週・月のポイント計算
+  const weekDates = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  });
+  const monthDates = Array.from({ length: new Date().getDate() }, (_, i) => {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  });
+  const weekPoints = sumPointsForDays(records, weekDates);
+  const monthPoints = sumPointsForDays(records, monthDates);
 
   // 今日の日付・曜日
   const dateObj = new Date();
@@ -206,6 +218,19 @@ export default function App() {
                   {todayPoints !== null ? (todayPoints >= 0 ? `+${todayPoints}` : todayPoints) : '—'}
                   {todayPoints !== null && <span className="stat-unit">pt</span>}
                 </div>
+              </div>
+            </div>
+
+            {/* 週・月ポイント */}
+            <div className="period-points-row">
+              <div className="period-points-item">
+                <span className="period-points-label">今週</span>
+                <span className="period-points-val">{weekPoints > 0 ? `+${weekPoints}` : weekPoints}pt</span>
+              </div>
+              <div className="period-points-divider" />
+              <div className="period-points-item">
+                <span className="period-points-label">今月</span>
+                <span className="period-points-val">{monthPoints > 0 ? `+${monthPoints}` : monthPoints}pt</span>
               </div>
             </div>
 

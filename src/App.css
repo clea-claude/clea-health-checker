@@ -342,6 +342,45 @@
   color: #9c7b6a;
 }
 
+/* 週・月ポイント */
+.period-points-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: 100%;
+  max-width: 360px;
+  margin-top: 10px;
+  background: white;
+  border: 1.5px solid #f0e0c8;
+  border-radius: 14px;
+  padding: 10px 0;
+}
+
+.period-points-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.period-points-divider {
+  width: 1px;
+  height: 28px;
+  background: #f0e0c8;
+}
+
+.period-points-label {
+  font-size: 0.72rem;
+  color: #9c7b6a;
+}
+
+.period-points-val {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #c49a6c;
+}
+
 /* カレンダーセクション */
 .home-calendar-section {
   width: 100%;

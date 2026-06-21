@@ -88,6 +88,28 @@ export function hasAnyRecord(rec: DayRecord | undefined): boolean {
   );
 }
 
+export function sumPointsForDays(
+  records: Record<string, DayRecord>,
+  dates: string[]
+): number {
+  return dates.reduce((total, date) => {
+    const rec = records[date];
+    if (!rec) return total;
+    // その日までの連続記録を計算
+    let s = 0;
+    let d = new Date(date);
+    while (true) {
+      const key = d.toISOString().slice(0, 10);
+      const r = records[key];
+      const hasAny = r && Object.values(r).some((v, i) => i > 1 && v !== '' && v !== 0 && v !== false);
+      if (!hasAny) break;
+      s++;
+      d.setDate(d.getDate() - 1);
+    }
+    return total + calcPoints(rec, s);
+  }, 0);
+}
+
 export function calcPoints(rec: DayRecord, streak: number): number {
   let pts = 0;
 
