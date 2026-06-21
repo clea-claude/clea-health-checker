@@ -8,7 +8,7 @@ import './App.css';
 
 const STORAGE_KEY = 'kurea-health-records';
 
-type View = 'home' | 'record';
+type View = 'home' | 'record' | 'points-guide';
 
 function loadRecords(): Record<string, DayRecord> {
   try {
@@ -117,8 +117,8 @@ export default function App() {
               <button className="menu-item menu-item-disabled" disabled>
                 ⚖️ 体重きろく <span className="menu-coming-soon">じゅんびちゅう</span>
               </button>
-              <button className="menu-item menu-item-disabled" disabled>
-                🏆 ポイント履歴 <span className="menu-coming-soon">じゅんびちゅう</span>
+              <button className="menu-item" onClick={() => { setView('points-guide'); setMenuOpen(false); }}>
+                🏆 ポイント一覧
               </button>
               <button className="menu-item menu-item-disabled" disabled>
                 💾 バックアップ <span className="menu-coming-soon">じゅんびちゅう</span>
@@ -238,6 +238,64 @@ export default function App() {
             <div className="home-calendar-section">
               <div className="home-calendar-header">📅 カレンダー</div>
               <CalendarView records={records} onSelectDate={handleSelectDate} />
+            </div>
+          </div>
+        ) : view === 'points-guide' ? (
+          <div className="points-guide-view">
+            <div className="today-header">
+              <button className="back-btn" onClick={() => setView('home')}>← もどる</button>
+              <h2 className="today-title">ポイント一覧</h2>
+            </div>
+            <div className="points-guide-section">
+              <div className="points-guide-category">きろくボーナス</div>
+              <div className="points-guide-row">
+                <span>きろくしただけ（1日目）</span><span className="pos">+5pt</span>
+              </div>
+              <div className="points-guide-row">
+                <span>2日連続</span><span className="pos">+6pt</span>
+              </div>
+              <div className="points-guide-row">
+                <span>3日連続</span><span className="pos">+7pt</span>
+              </div>
+              <div className="points-guide-row sub">
+                <span>…1日ごとに+1pt、最大</span><span className="pos">+10pt</span>
+              </div>
+            </div>
+            <div className="points-guide-section">
+              <div className="points-guide-category">けんこう</div>
+              <div className="points-guide-row">
+                <span>☘️ お通じ</span><span className="pos">+5pt</span>
+              </div>
+              <div className="points-guide-row">
+                <span>🌅 朝ウォーキング</span><span className="pos">+5pt</span>
+              </div>
+              <div className="points-guide-row">
+                <span>🏃 運動</span><span className="pos">+10pt</span>
+              </div>
+            </div>
+            <div className="points-guide-section">
+              <div className="points-guide-category">おやつ</div>
+              <div className="points-guide-row">
+                <span>💪 我慢できた！</span><span className="pos">+5pt</span>
+              </div>
+              <div className="points-guide-row">
+                <span>🌿 すこしだけ</span><span className="neutral">±0pt</span>
+              </div>
+              <div className="points-guide-row">
+                <span>🍬 食べちゃった</span><span className="neg">-5pt</span>
+              </div>
+            </div>
+            <div className="points-guide-section">
+              <div className="points-guide-category">すいみん</div>
+              <div className="points-guide-row">
+                <span>😴 7時間以上</span><span className="pos">+10pt</span>
+              </div>
+              <div className="points-guide-row">
+                <span>😐 6〜7時間</span><span className="neutral">±0pt</span>
+              </div>
+              <div className="points-guide-row">
+                <span>😵 6時間未満</span><span className="neg">-10pt</span>
+              </div>
             </div>
           </div>
         ) : (

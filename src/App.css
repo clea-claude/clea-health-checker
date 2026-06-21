@@ -342,6 +342,50 @@
   color: #9c7b6a;
 }
 
+/* ===== ポイント一覧 ===== */
+.points-guide-view {
+  padding: 0 16px 32px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.points-guide-section {
+  background: white;
+  border: 1.5px solid #f0e0c8;
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.points-guide-category {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #c49a6c;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.points-guide-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f5ede0;
+  font-size: 0.92rem;
+  color: #5c4033;
+}
+.points-guide-row:last-child { border-bottom: none; }
+
+.points-guide-row.sub {
+  font-size: 0.8rem;
+  color: #9c7b6a;
+}
+
+.points-guide-row .pos    { font-weight: 700; color: #7dbf8e; }
+.points-guide-row .neg    { font-weight: 700; color: #e8907a; }
+.points-guide-row .neutral { font-weight: 700; color: #9c7b6a; }
+
 /* 週・月ポイント */
 .period-points-row {
   display: flex;
