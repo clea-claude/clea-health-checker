@@ -91,9 +91,42 @@
   line-height: 1;
 }
 
-.cal-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #c49a6c;
+/* ポイント色分け */
+.cal-day.pts-neg  { background: #fde8e8; border-color: #f0b8b8; }
+.cal-day.pts-low  { background: #fdf0e0; border-color: #e8c99a; }
+.cal-day.pts-mid  { background: #fce8b0; border-color: #d4a840; }
+.cal-day.pts-high { background: #d4f0d8; border-color: #7dbf8e; }
+
+.cal-day.pts-neg .cal-day-num  { color: #c06060; }
+.cal-day.pts-mid .cal-day-num  { color: #8a6a10; }
+.cal-day.pts-high .cal-day-num { color: #3a8a4a; }
+
+/* 凡例 */
+.cal-legend {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #f0e0c8;
 }
+
+.cal-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.7rem;
+  color: #9c7b6a;
+}
+
+.cal-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  border: 1.5px solid;
+  display: inline-block;
+}
+.cal-legend-dot.pts-neg  { background: #fde8e8; border-color: #f0b8b8; }
+.cal-legend-dot.pts-low  { background: #fdf0e0; border-color: #e8c99a; }
+.cal-legend-dot.pts-mid  { background: #fce8b0; border-color: #d4a840; }
+.cal-legend-dot.pts-high { background: #d4f0d8; border-color: #7dbf8e; }

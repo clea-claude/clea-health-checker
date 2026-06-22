@@ -1,11 +1,18 @@
 import { useState } from 'react';
 import type { DayRecord } from '../types';
-import { hasAnyRecord, todayStr } from '../utils';
+import { todayStr, calcPoints, getStreak } from '../utils';
 import './CalendarView.css';
 
 interface Props {
   records: Record<string, DayRecord>;
   onSelectDate: (date: string) => void;
+}
+
+function pointsColorClass(pts: number): string {
+  if (pts < 0)  return 'pts-neg';
+  if (pts < 15) return 'pts-low';
+  if (pts < 30) return 'pts-mid';
+  return 'pts-high';
 }
 
 export default function CalendarView({ records, onSelectDate }: Props) {
@@ -22,7 +29,7 @@ export default function CalendarView({ records, onSelectDate }: Props) {
     else setViewMonth(m => m + 1);
   };
 
-  // 月曜始まり: 0=日→6, 1=月→0, ..., 6=土→5
+  // 月曜始まり
   const firstDaySun = new Date(viewYear, viewMonth, 1).getDay();
   const firstDay = (firstDaySun + 6) % 7;
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
@@ -52,21 +59,30 @@ export default function CalendarView({ records, onSelectDate }: Props) {
         {cells.map((day, i) => {
           if (day === null) return <div key={`e${i}`} />;
           const key = dateKey(day);
-          const hasRec = hasAnyRecord(records[key]);
+          const rec = records[key];
           const isToday = key === today;
           const isFuture = key > today;
+          const pts = rec ? calcPoints(rec, getStreak(records, key)) : null;
+          const colorClass = pts !== null ? pointsColorClass(pts) : '';
           return (
             <button
               key={key}
-              className={`cal-day ${hasRec ? 'has-rec' : ''} ${isToday ? 'is-today' : ''} ${isFuture ? 'future' : ''}`}
+              className={`cal-day ${colorClass} ${isToday ? 'is-today' : ''} ${isFuture ? 'future' : ''}`}
               onClick={() => !isFuture && onSelectDate(key)}
               disabled={isFuture}
             >
               <span className="cal-day-num">{day}</span>
-              {hasRec && <span className="cal-dot" />}
             </button>
           );
         })}
+      </div>
+
+      {/* 凡例 */}
+      <div className="cal-legend">
+        <div className="cal-legend-item"><span className="cal-legend-dot pts-neg" />マイナス</div>
+        <div className="cal-legend-item"><span className="cal-legend-dot pts-low" />〜14pt</div>
+        <div className="cal-legend-item"><span className="cal-legend-dot pts-mid" />〜29pt</div>
+        <div className="cal-legend-item"><span className="cal-legend-dot pts-high" />30pt〜</div>
       </div>
     </div>
   );
