@@ -1,20 +1,30 @@
 import { useState, useEffect } from 'react';
-import type { DayRecord, EmmaState, EmmaLevel } from './types';
+import type { DayRecord, EmmaState, EmmaLevel, SeiriRecord } from './types';
 import { getEmmaState, getStreak, getLevel, todayStr, calcPoints, sumPointsForDays } from './utils';
 import TodayView from './components/TodayView';
 import CalendarView from './components/CalendarView';
+import SeiriView from './components/SeiriView';
 import emmaImg from './assets/emma.png';
 import './App.css';
 
 const STORAGE_KEY = 'kurea-health-records';
+const SEIRI_KEY = 'kurea-seiri-records';
 
-type View = 'home' | 'record' | 'points-guide';
+type View = 'home' | 'record' | 'points-guide' | 'seiri';
 
 function loadRecords(): Record<string, DayRecord> {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
   } catch {
     return {};
+  }
+}
+
+function loadSeiriRecords(): SeiriRecord[] {
+  try {
+    return JSON.parse(localStorage.getItem(SEIRI_KEY) || '[]');
+  } catch {
+    return [];
   }
 }
 
@@ -34,6 +44,7 @@ const stateMessages: Record<EmmaState, string> = {
 
 export default function App() {
   const [records, setRecords] = useState<Record<string, DayRecord>>(loadRecords);
+  const [seiriRecords, setSeiriRecords] = useState<SeiriRecord[]>(loadSeiriRecords);
   const [view, setView] = useState<View>('home');
   const [editDate, setEditDate] = useState<string | undefined>(undefined);
   const [saved, setSaved] = useState(false);
@@ -68,6 +79,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
   }, [records]);
+
+  useEffect(() => {
+    localStorage.setItem(SEIRI_KEY, JSON.stringify(seiriRecords));
+  }, [seiriRecords]);
 
   const handleSave = (date: string, rec: DayRecord) => {
     const newRecords = { ...records, [date]: rec };
@@ -111,8 +126,8 @@ export default function App() {
                 📅 カレンダー
               </button>
               <div className="menu-divider" />
-              <button className="menu-item menu-item-disabled" disabled>
-                🩸 生理ページ <span className="menu-coming-soon">じゅんびちゅう</span>
+              <button className="menu-item" onClick={() => { setView('seiri'); setMenuOpen(false); }}>
+                🩸 生理きろく
               </button>
               <button className="menu-item menu-item-disabled" disabled>
                 ⚖️ 体重きろく <span className="menu-coming-soon">じゅんびちゅう</span>
@@ -240,6 +255,12 @@ export default function App() {
               <CalendarView records={records} onSelectDate={handleSelectDate} />
             </div>
           </div>
+        ) : view === 'seiri' ? (
+          <SeiriView
+            records={seiriRecords}
+            onSave={setSeiriRecords}
+            onBack={() => setView('home')}
+          />
         ) : view === 'points-guide' ? (
           <div className="points-guide-view">
             <div className="today-header">

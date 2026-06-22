@@ -1,0 +1,166 @@
+.seiri-view {
+  padding: 0 16px 32px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* メインカード */
+.seiri-main-card {
+  background: white;
+  border: 2px solid #f0e0c8;
+  border-radius: 24px;
+  padding: 28px 24px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.seiri-status-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #c49a6c;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+.seiri-status-label.ongoing {
+  color: #e07080;
+}
+
+.seiri-big-num {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #5c4033;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.seiri-big-unit {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #9c7b6a;
+  margin-left: 4px;
+}
+
+.seiri-sub {
+  font-size: 0.9rem;
+  color: #9c7b6a;
+  margin-bottom: 12px;
+}
+
+.seiri-cycle-badge {
+  display: inline-block;
+  background: #faf4ec;
+  border: 1.5px solid #f0e0c8;
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 0.8rem;
+  color: #c49a6c;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+/* ボタン */
+.seiri-btn-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.seiri-btn {
+  flex: 1;
+  padding: 16px 10px;
+  border: none;
+  border-radius: 18px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.seiri-btn:active { transform: scale(0.97); }
+.seiri-btn:disabled { opacity: 0.4; cursor: default; }
+
+.seiri-btn.start {
+  background: #f5c0c8;
+  color: #8a3040;
+}
+.seiri-btn.end {
+  background: #f0e0c8;
+  color: #7a5030;
+}
+
+/* 履歴 */
+.seiri-history {
+  background: white;
+  border: 1.5px solid #f0e0c8;
+  border-radius: 20px;
+  padding: 16px;
+}
+
+.seiri-history-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #c49a6c;
+  margin: 0 0 12px;
+}
+
+.seiri-history-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f5ede0;
+  flex-wrap: wrap;
+}
+.seiri-history-row:last-child { border-bottom: none; }
+
+.seiri-history-dates {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.seiri-history-start {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #5c4033;
+}
+
+.seiri-history-end {
+  font-size: 0.8rem;
+  color: #9c7b6a;
+}
+
+.seiri-history-ongoing {
+  font-size: 0.8rem;
+  color: #e07080;
+  font-weight: 700;
+}
+
+.seiri-history-cycle {
+  font-size: 0.78rem;
+  background: #faf4ec;
+  border: 1px solid #f0e0c8;
+  border-radius: 12px;
+  padding: 3px 10px;
+  color: #c49a6c;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.seiri-delete-btn {
+  background: none;
+  border: 1px solid #f0d0d0;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  font-size: 0.7rem;
+  color: #c07080;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+.seiri-delete-btn:hover { background: #fde8e8; }
