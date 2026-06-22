@@ -196,9 +196,10 @@ export default function App() {
             {/* 統計カード */}
             <div className="stats-row">
               <div className="stat-card">
-                <div className="stat-label">れんぞくきろく</div>
-                <div className="stat-value">
-                  {streak}<span className="stat-unit">にち</span>
+                <div className="stat-label">ポイント</div>
+                <div className="stat-value" style={{ color: todayPoints !== null && todayPoints < 0 ? '#e8907a' : '#c49a6c' }}>
+                  {todayPoints !== null ? (todayPoints >= 0 ? `+${todayPoints}` : todayPoints) : '—'}
+                  {todayPoints !== null && <span className="stat-unit">pt</span>}
                 </div>
               </div>
               <div className="stat-card">
@@ -213,10 +214,9 @@ export default function App() {
                 </div>
               </div>
               <div className="stat-card">
-                <div className="stat-label">ポイント</div>
-                <div className="stat-value" style={{ color: todayPoints !== null && todayPoints < 0 ? '#e8907a' : '#c49a6c' }}>
-                  {todayPoints !== null ? (todayPoints >= 0 ? `+${todayPoints}` : todayPoints) : '—'}
-                  {todayPoints !== null && <span className="stat-unit">pt</span>}
+                <div className="stat-label">れんぞくきろく</div>
+                <div className="stat-value">
+                  {streak}<span className="stat-unit">にち</span>
                 </div>
               </div>
             </div>

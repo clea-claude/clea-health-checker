@@ -22,7 +22,9 @@ export default function CalendarView({ records, onSelectDate }: Props) {
     else setViewMonth(m => m + 1);
   };
 
-  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+  // 月曜始まり: 0=日→6, 1=月→0, ..., 6=土→5
+  const firstDaySun = new Date(viewYear, viewMonth, 1).getDay();
+  const firstDay = (firstDaySun + 6) % 7;
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
 
   const cells: (number | null)[] = [
@@ -44,7 +46,7 @@ export default function CalendarView({ records, onSelectDate }: Props) {
       </div>
 
       <div className="cal-grid">
-        {['日','月','火','水','木','金','土'].map(d => (
+        {['月','火','水','木','金','土','日'].map(d => (
           <div key={d} className={`cal-weekday ${d === '日' ? 'sun' : d === '土' ? 'sat' : ''}`}>{d}</div>
         ))}
         {cells.map((day, i) => {
