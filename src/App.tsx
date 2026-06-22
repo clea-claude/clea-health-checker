@@ -20,9 +20,24 @@ function loadRecords(): Record<string, DayRecord> {
   }
 }
 
+const SEIRI_INITIAL: SeiriRecord[] = [
+  { startDate: '2026-01-18', endDate: '2026-01-21' },
+  { startDate: '2026-03-04', endDate: '2026-03-06' },
+  { startDate: '2026-04-02' },
+  { startDate: '2026-04-28', endDate: '2026-05-03' },
+  { startDate: '2026-05-26', endDate: '2026-05-30' },
+  { startDate: '2026-06-22' },
+];
+
 function loadSeiriRecords(): SeiriRecord[] {
   try {
-    return JSON.parse(localStorage.getItem(SEIRI_KEY) || '[]');
+    const stored = localStorage.getItem(SEIRI_KEY);
+    if (!stored) {
+      // 初回のみ過去データをセット
+      localStorage.setItem(SEIRI_KEY, JSON.stringify(SEIRI_INITIAL));
+      return SEIRI_INITIAL;
+    }
+    return JSON.parse(stored);
   } catch {
     return [];
   }
