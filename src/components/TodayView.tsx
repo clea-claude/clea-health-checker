@@ -68,7 +68,9 @@ export default function TodayView({ records, onSave, editDate, onBack }: Props) 
   }, [targetDate]);
 
   const sleepMin = calcSleepMinutes(form.suiminJikan, form.kiShoBjikan);
-  const streak = getStreak(records, targetDate);
+  // 保存後のストリークを先読み計算（今日の記録を仮追加）
+  const tempRecords = { ...records, [targetDate]: { ...form, date: targetDate, sleepMinutes: sleepMin } };
+  const streak = getStreak(tempRecords, targetDate);
   const pointRows = buildPointRows(form, sleepMin, streak);
   const totalPts = pointRows.reduce((s, r) => s + r.pts, 0);
 
