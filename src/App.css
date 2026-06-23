@@ -217,8 +217,8 @@
 }
 
 .emma-main-img {
-  width: 180px;
-  height: 180px;
+  width: 260px;
+  height: 260px;
   object-fit: contain;
   filter: drop-shadow(0 4px 12px rgba(0,0,0,0.12));
   transition: filter 0.4s ease;
