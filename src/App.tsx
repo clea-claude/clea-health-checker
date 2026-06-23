@@ -7,15 +7,35 @@ import SeiriView from './components/SeiriView';
 import WeightView from './components/WeightView';
 import BackupView from './components/BackupView';
 import HistoryView from './components/HistoryView';
-import emmaImg from './assets/emma.png';
+import emma1  from './assets/emma/emma_1.png';
+import emma2  from './assets/emma/emma_2.png';
+import emma3  from './assets/emma/emma_3.png';
+import emma6  from './assets/emma/emma_6.png';
+import emma7  from './assets/emma/emma_7.png';
+import emma8  from './assets/emma/emma_8.png';
+import emma11 from './assets/emma/emma_11.png';
+import emma13 from './assets/emma/emma_13.png';
+import emma14 from './assets/emma/emma_14.png';
+import emma15 from './assets/emma/emma_15.png';
+import emma18 from './assets/emma/emma_18.png';
+import emma22 from './assets/emma/emma_22.png';
+import emma23 from './assets/emma/emma_23.png';
+import emma24 from './assets/emma/emma_24.png';
+import emma25 from './assets/emma/emma_25.png';
+import emma30 from './assets/emma/emma_30.png';
+import emma31 from './assets/emma/emma_31.png';
+import emma32 from './assets/emma/emma_32.png';
 import './App.css';
 
 const STORAGE_KEY = 'kurea-health-records';
 const SEIRI_KEY = 'kurea-seiri-records';
 const WEIGHT_KEY = 'kurea-weight-records';
 
-// エマ画像リスト（複数追加したらランダム表示）
-const EMMA_IMAGES = [emmaImg];
+const EMMA_IMAGES = [
+  emma1, emma2, emma3, emma6, emma7, emma8,
+  emma11, emma13, emma14, emma15, emma18,
+  emma22, emma23, emma24, emma25, emma30, emma31, emma32,
+];
 
 type View = 'home' | 'record' | 'points-guide' | 'seiri' | 'weight' | 'backup' | 'history';
 
