@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
-import type { DayRecord, EmmaState, EmmaLevel, SeiriRecord, WeightRecord } from './types';
-import { getEmmaState, getStreak, getLevel, todayStr, calcPoints, sumPointsForDays } from './utils';
+import { useState, useEffect, useMemo } from 'react';
+import type { DayRecord, EmmaState, SeiriRecord, WeightRecord } from './types';
+import { getEmmaState, getStreak, todayStr, calcPoints, sumPointsForDays } from './utils';
 import TodayView from './components/TodayView';
 import CalendarView from './components/CalendarView';
 import SeiriView from './components/SeiriView';
 import WeightView from './components/WeightView';
 import BackupView from './components/BackupView';
+import HistoryView from './components/HistoryView';
 import emmaImg from './assets/emma.png';
 import './App.css';
 
@@ -13,7 +14,10 @@ const STORAGE_KEY = 'kurea-health-records';
 const SEIRI_KEY = 'kurea-seiri-records';
 const WEIGHT_KEY = 'kurea-weight-records';
 
-type View = 'home' | 'record' | 'points-guide' | 'seiri' | 'weight' | 'backup';
+// エマ画像リスト（複数追加したらランダム表示）
+const EMMA_IMAGES = [emmaImg];
+
+type View = 'home' | 'record' | 'points-guide' | 'seiri' | 'weight' | 'backup' | 'history';
 
 function loadRecords(): Record<string, DayRecord> {
   try {
@@ -54,12 +58,24 @@ function loadWeightRecords(): WeightRecord[] {
   }
 }
 
-const levelNames: Record<EmmaLevel, string> = {
-  1: 'こいぬ',
-  2: 'げんきなこいぬ',
-  3: 'せいけん',
-  4: 'プリンセス',
-};
+function getThisWeekDates(): string[] {
+  const now = new Date();
+  const day = now.getDay(); // 0=Sun
+  const daysFromMon = day === 0 ? 6 : day - 1;
+  return Array.from({ length: daysFromMon + 1 }, (_, i) => {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  });
+}
+
+function getThisMonthDates(): string[] {
+  return Array.from({ length: new Date().getDate() }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  });
+}
 
 const stateMessages: Record<EmmaState, string> = {
   happy:    'おかえり〜！きょうもいっしょにきろくしよ 🐾',
@@ -67,6 +83,9 @@ const stateMessages: Record<EmmaState, string> = {
   sleepy:   'ねむそう…すいみんとれてる？きろくしてね 💤',
   deadEyes: 'だいじょうぶ…？むりしないでね。きろくしとこ 😵',
 };
+
+// 起動時にランダムで1枚選ぶ
+const randomEmmaImg = EMMA_IMAGES[Math.floor(Math.random() * EMMA_IMAGES.length)];
 
 export default function App() {
   const [records, setRecords] = useState<Record<string, DayRecord>>(loadRecords);
@@ -82,23 +101,12 @@ export default function App() {
   const today = todayStr();
   const todayRec = records[today];
   const streak = getStreak(records, today);
-  const level = getLevel(streak);
   const emmaState = getEmmaState(todayRec?.sleepMinutes ?? 0);
   const todayPoints = todayRec ? calcPoints(todayRec, streak) : null;
 
-  // 週・月のポイント計算
-  const weekDates = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  });
-  const monthDates = Array.from({ length: new Date().getDate() }, (_, i) => {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  });
-  const weekPoints = sumPointsForDays(records, weekDates);
-  const monthPoints = sumPointsForDays(records, monthDates);
+  const weekPoints = useMemo(() => sumPointsForDays(records, getThisWeekDates()), [records]);
+  const monthPoints = useMemo(() => sumPointsForDays(records, getThisMonthDates()), [records]);
 
-  // 今日の日付・曜日
   const dateObj = new Date();
   const dayOfWeek = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
   const dateLabel = dateObj.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' }) + ' ' + dayOfWeek;
@@ -118,15 +126,10 @@ export default function App() {
   // 月曜日に今週の体重未記録ならリマインダー
   const isMondayReminderNeeded = (() => {
     const now = new Date();
-    if (now.getDay() !== 1) return false; // 月曜じゃない
-    // 今週月曜の日付
+    if (now.getDay() !== 1) return false;
     const monday = new Date(now);
     monday.setHours(0, 0, 0, 0);
-    const thisWeekRecorded = weightRecords.some(r => {
-      const d = new Date(r.date + 'T00:00:00');
-      return d >= monday;
-    });
-    return !thisWeekRecorded;
+    return !weightRecords.some(r => new Date(r.date + 'T00:00:00') >= monday);
   })();
 
   const handleSave = (date: string, rec: DayRecord) => {
@@ -149,9 +152,6 @@ export default function App() {
     setEditDate(undefined);
     setView('record');
   };
-
-  // レベルバー（30日で満タン）
-  const streakBarWidth = Math.min((streak / 30) * 100, 100);
 
   return (
     <div className="app">
@@ -177,6 +177,10 @@ export default function App() {
               <button className="menu-item" onClick={() => { setView('weight'); setMenuOpen(false); }}>
                 ⚖️ 体重きろく
               </button>
+              <button className="menu-item" onClick={() => { setView('history'); setMenuOpen(false); }}>
+                📊 履歴
+              </button>
+              <div className="menu-divider" />
               <button className="menu-item" onClick={() => { setView('points-guide'); setMenuOpen(false); }}>
                 🏆 ポイント一覧
               </button>
@@ -192,22 +196,13 @@ export default function App() {
       <header className="app-header">
         <div className="header-emma-icon" onClick={() => setView('home')} style={{ cursor: 'pointer' }}>
           {!imgError ? (
-            <img src={emmaImg} alt="エマ" onError={() => setImgError(true)} />
+            <img src={randomEmmaImg} alt="エマ" onError={() => setImgError(true)} />
           ) : (
             <span className="header-emma-icon-placeholder">🐾</span>
           )}
         </div>
         <div className="header-info">
-          <div>
-            <span className="header-name">エマ</span>
-          </div>
-          <div>
-            <span className="header-level">Lv.{level}</span>
-            <span className="header-level-name">{levelNames[level]}</span>
-          </div>
-          <div className="header-streak-bar">
-            <div className="header-streak-fill" style={{ width: `${streakBarWidth}%` }} />
-          </div>
+          <span className="header-name">エマ</span>
         </div>
         <button className="hamburger-btn" onClick={() => setMenuOpen(true)}>≡</button>
       </header>
@@ -226,16 +221,14 @@ export default function App() {
       <main className="app-main">
         {view === 'home' ? (
           <div className="home-view">
-            {/* 日付 */}
             <div className="today-date-label">{dateLabel}</div>
 
-            {/* エマ */}
             <div className="emma-main-section">
               {!imgError ? (
                 <img
-                  src={emmaImg}
+                  src={randomEmmaImg}
                   alt="エマ"
-                  className={`emma-main-img state-${emmaState}`}
+                  className="emma-main-img"
                   onError={() => setImgError(true)}
                 />
               ) : (
@@ -243,19 +236,16 @@ export default function App() {
               )}
             </div>
 
-            {/* 吹き出し */}
             <div className="speech-bubble">
               {isMondayReminderNeeded
                 ? '月曜日だよ！今週の体重、測った？⚖️ きろくしてね！'
                 : stateMessages[emmaState]}
             </div>
 
-            {/* きろくボタン */}
             <button className="kiroku-btn" onClick={handleKiroku}>
               📝 きろくする
             </button>
 
-            {/* 統計カード */}
             <div className="stats-row">
               <div className="stat-card">
                 <div className="stat-label">ポイント</div>
@@ -267,12 +257,8 @@ export default function App() {
               <div className="stat-card">
                 <div className="stat-label">すいみん</div>
                 <div className="stat-value">
-                  {todayRec?.sleepMinutes
-                    ? `${Math.floor(todayRec.sleepMinutes / 60)}`
-                    : '—'}
-                  {todayRec?.sleepMinutes
-                    ? <span className="stat-unit">じかん</span>
-                    : null}
+                  {todayRec?.sleepMinutes ? `${Math.floor(todayRec.sleepMinutes / 60)}` : '—'}
+                  {todayRec?.sleepMinutes ? <span className="stat-unit">じかん</span> : null}
                 </div>
               </div>
               <div className="stat-card">
@@ -283,7 +269,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* 週・月ポイント */}
             <div className="period-points-row">
               <div className="period-points-item">
                 <span className="period-points-label">今週</span>
@@ -296,12 +281,17 @@ export default function App() {
               </div>
             </div>
 
-            {/* カレンダー */}
             <div className="home-calendar-section">
               <div className="home-calendar-header">📅 カレンダー</div>
               <CalendarView records={records} onSelectDate={handleSelectDate} />
             </div>
           </div>
+        ) : view === 'history' ? (
+          <HistoryView
+            records={records}
+            weightRecords={weightRecords}
+            onBack={() => setView('home')}
+          />
         ) : view === 'backup' ? (
           <BackupView
             onRestore={() => { window.location.reload(); }}
@@ -328,16 +318,16 @@ export default function App() {
             <div className="points-guide-section">
               <div className="points-guide-category">きろくボーナス</div>
               <div className="points-guide-row">
-                <span>きろくしただけ（1日目）</span><span className="pos">+5pt</span>
+                <span>きろくしただけ（1日目）</span><span className="pos">+1pt</span>
               </div>
               <div className="points-guide-row">
-                <span>2日連続</span><span className="pos">+6pt</span>
+                <span>2日連続</span><span className="pos">+2pt</span>
               </div>
               <div className="points-guide-row">
-                <span>3日連続</span><span className="pos">+7pt</span>
+                <span>3日連続</span><span className="pos">+3pt</span>
               </div>
               <div className="points-guide-row sub">
-                <span>…1日ごとに+1pt、最大</span><span className="pos">+10pt</span>
+                <span>…1日ごとに+1pt、最大</span><span className="pos">+5pt</span>
               </div>
             </div>
             <div className="points-guide-section">

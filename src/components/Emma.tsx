@@ -1,10 +1,9 @@
-import type { EmmaState, EmmaLevel } from '../types';
+import type { EmmaState } from '../types';
 import emmaImg from '../assets/emma.png';
 import './Emma.css';
 
 interface Props {
   state: EmmaState;
-  level: EmmaLevel;
 }
 
 const stateFilter: Record<EmmaState, string> = {
@@ -21,9 +20,7 @@ const stateLabel: Record<EmmaState, string> = {
   deadEyes: '😵 限界…',
 };
 
-export default function Emma({ state, level }: Props) {
-  const levelLabel = ['', '子犬', '元気な子犬', '成犬', 'プリンセス成犬'];
-
+export default function Emma({ state }: Props) {
   return (
     <div className={`emma-wrap ${state === 'happy' ? 'emma-happy' : ''}`}>
       <div className="emma-img-wrap">
@@ -38,14 +35,8 @@ export default function Emma({ state, level }: Props) {
             {state === 'sleepy' ? '💤' : '💫'}
           </div>
         )}
-        {level === 4 && <div className="emma-crown">👑</div>}
       </div>
-
       <div className="emma-state-label">{stateLabel[state]}</div>
-      <div className="emma-level-badge">
-        {level === 1 ? '🐾' : level === 2 ? '⭐' : level === 3 ? '⭐⭐' : '⭐⭐⭐'}
-        <span className="emma-level-name"> Lv.{level} {levelLabel[level]}</span>
-      </div>
     </div>
   );
 }

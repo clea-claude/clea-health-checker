@@ -1,4 +1,4 @@
-import type { DayRecord, EmmaState, EmmaLevel } from './types';
+import type { DayRecord, EmmaState } from './types';
 
 export function calcSleepMinutes(suimin: string, kisho: string): number {
   if (!suimin || !kisho) return 0;
@@ -33,12 +33,6 @@ export function getStreak(records: Record<string, DayRecord>, today: string): nu
   return streak;
 }
 
-export function getLevel(streak: number): EmmaLevel {
-  if (streak >= 30) return 4;
-  if (streak >= 7) return 3;
-  if (streak >= 3) return 2;
-  return 1;
-}
 
 export function formatSleep(minutes: number): string {
   if (minutes === 0) return '—';
@@ -103,8 +97,8 @@ export function sumPointsForDays(
 export function calcPoints(rec: DayRecord, streak: number): number {
   let pts = 0;
 
-  // きろくしただけボーナス（連続日数に応じて増加、上限10pt）
-  pts += Math.min(4 + streak, 10);
+  // きろくしただけボーナス（連続日数に応じて増加、上限5pt）
+  pts += Math.min(streak + 1, 5);
 
   if (rec.haiBen) pts += 5;
   if (rec.asaWalking) pts += 5;

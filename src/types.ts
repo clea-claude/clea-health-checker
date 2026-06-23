@@ -14,7 +14,6 @@ export interface DayRecord {
 }
 
 export type EmmaState = 'happy' | 'normal' | 'sleepy' | 'deadEyes';
-export type EmmaLevel = 1 | 2 | 3 | 4;
 
 export interface SeiriRecord {
   startDate: string;  // YYYY-MM-DD
