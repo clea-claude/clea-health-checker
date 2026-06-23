@@ -1,16 +1,19 @@
 import { useState, useEffect } from 'react';
-import type { DayRecord, EmmaState, EmmaLevel, SeiriRecord } from './types';
+import type { DayRecord, EmmaState, EmmaLevel, SeiriRecord, WeightRecord } from './types';
 import { getEmmaState, getStreak, getLevel, todayStr, calcPoints, sumPointsForDays } from './utils';
 import TodayView from './components/TodayView';
 import CalendarView from './components/CalendarView';
 import SeiriView from './components/SeiriView';
+import WeightView from './components/WeightView';
+import BackupView from './components/BackupView';
 import emmaImg from './assets/emma.png';
 import './App.css';
 
 const STORAGE_KEY = 'kurea-health-records';
 const SEIRI_KEY = 'kurea-seiri-records';
+const WEIGHT_KEY = 'kurea-weight-records';
 
-type View = 'home' | 'record' | 'points-guide' | 'seiri';
+type View = 'home' | 'record' | 'points-guide' | 'seiri' | 'weight' | 'backup';
 
 function loadRecords(): Record<string, DayRecord> {
   try {
@@ -23,7 +26,7 @@ function loadRecords(): Record<string, DayRecord> {
 const SEIRI_INITIAL: SeiriRecord[] = [
   { startDate: '2026-01-18', endDate: '2026-01-21' },
   { startDate: '2026-03-04', endDate: '2026-03-06' },
-  { startDate: '2026-04-02' },
+  { startDate: '2026-04-02', endDate: '2026-04-06' },
   { startDate: '2026-04-28', endDate: '2026-05-03' },
   { startDate: '2026-05-26', endDate: '2026-05-30' },
   { startDate: '2026-06-22' },
@@ -32,12 +35,20 @@ const SEIRI_INITIAL: SeiriRecord[] = [
 function loadSeiriRecords(): SeiriRecord[] {
   try {
     const stored = localStorage.getItem(SEIRI_KEY);
-    if (!stored) {
-      // 初回のみ過去データをセット
+    const parsed = stored ? JSON.parse(stored) : [];
+    if (!parsed.length) {
       localStorage.setItem(SEIRI_KEY, JSON.stringify(SEIRI_INITIAL));
       return SEIRI_INITIAL;
     }
-    return JSON.parse(stored);
+    return parsed;
+  } catch {
+    return [];
+  }
+}
+
+function loadWeightRecords(): WeightRecord[] {
+  try {
+    return JSON.parse(localStorage.getItem(WEIGHT_KEY) || '[]');
   } catch {
     return [];
   }
@@ -60,6 +71,7 @@ const stateMessages: Record<EmmaState, string> = {
 export default function App() {
   const [records, setRecords] = useState<Record<string, DayRecord>>(loadRecords);
   const [seiriRecords, setSeiriRecords] = useState<SeiriRecord[]>(loadSeiriRecords);
+  const [weightRecords, setWeightRecords] = useState<WeightRecord[]>(loadWeightRecords);
   const [view, setView] = useState<View>('home');
   const [editDate, setEditDate] = useState<string | undefined>(undefined);
   const [saved, setSaved] = useState(false);
@@ -98,6 +110,24 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem(SEIRI_KEY, JSON.stringify(seiriRecords));
   }, [seiriRecords]);
+
+  useEffect(() => {
+    localStorage.setItem(WEIGHT_KEY, JSON.stringify(weightRecords));
+  }, [weightRecords]);
+
+  // 月曜日に今週の体重未記録ならリマインダー
+  const isMondayReminderNeeded = (() => {
+    const now = new Date();
+    if (now.getDay() !== 1) return false; // 月曜じゃない
+    // 今週月曜の日付
+    const monday = new Date(now);
+    monday.setHours(0, 0, 0, 0);
+    const thisWeekRecorded = weightRecords.some(r => {
+      const d = new Date(r.date + 'T00:00:00');
+      return d >= monday;
+    });
+    return !thisWeekRecorded;
+  })();
 
   const handleSave = (date: string, rec: DayRecord) => {
     const newRecords = { ...records, [date]: rec };
@@ -144,14 +174,14 @@ export default function App() {
               <button className="menu-item" onClick={() => { setView('seiri'); setMenuOpen(false); }}>
                 🩸 生理きろく
               </button>
-              <button className="menu-item menu-item-disabled" disabled>
-                ⚖️ 体重きろく <span className="menu-coming-soon">じゅんびちゅう</span>
+              <button className="menu-item" onClick={() => { setView('weight'); setMenuOpen(false); }}>
+                ⚖️ 体重きろく
               </button>
               <button className="menu-item" onClick={() => { setView('points-guide'); setMenuOpen(false); }}>
                 🏆 ポイント一覧
               </button>
-              <button className="menu-item menu-item-disabled" disabled>
-                💾 バックアップ <span className="menu-coming-soon">じゅんびちゅう</span>
+              <button className="menu-item" onClick={() => { setView('backup'); setMenuOpen(false); }}>
+                💾 バックアップ
               </button>
             </nav>
           </div>
@@ -215,7 +245,9 @@ export default function App() {
 
             {/* 吹き出し */}
             <div className="speech-bubble">
-              {stateMessages[emmaState]}
+              {isMondayReminderNeeded
+                ? '月曜日だよ！今週の体重、測った？⚖️ きろくしてね！'
+                : stateMessages[emmaState]}
             </div>
 
             {/* きろくボタン */}
@@ -270,6 +302,17 @@ export default function App() {
               <CalendarView records={records} onSelectDate={handleSelectDate} />
             </div>
           </div>
+        ) : view === 'backup' ? (
+          <BackupView
+            onRestore={() => { window.location.reload(); }}
+            onBack={() => setView('home')}
+          />
+        ) : view === 'weight' ? (
+          <WeightView
+            records={weightRecords}
+            onSave={setWeightRecords}
+            onBack={() => setView('home')}
+          />
         ) : view === 'seiri' ? (
           <SeiriView
             records={seiriRecords}

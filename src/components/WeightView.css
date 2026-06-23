@@ -1,0 +1,185 @@
+.weight-view {
+  padding: 0 16px 32px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.weight-main-card {
+  background: white;
+  border: 2px solid #f0e0c8;
+  border-radius: 24px;
+  padding: 28px 24px;
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.weight-status-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #c49a6c;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.weight-big-num {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #5c4033;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.weight-big-unit {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #9c7b6a;
+  margin-left: 4px;
+}
+
+.weight-sub {
+  font-size: 0.88rem;
+  color: #9c7b6a;
+  margin-bottom: 10px;
+}
+
+.weight-diff {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+}
+.weight-diff.up   { background: #fde8e8; color: #c06060; }
+.weight-diff.down { background: #d4f0d8; color: #3a8a4a; }
+.weight-diff.same { background: #f0e0c8; color: #9c7b6a; }
+
+.weight-stats-row {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 1px solid #f0e0c8;
+}
+
+.weight-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.weight-stat-label { font-size: 0.72rem; color: #9c7b6a; }
+.weight-stat-val   { font-size: 1rem; font-weight: 700; color: #c49a6c; }
+
+/* 入力エリア */
+.weight-input-card {
+  background: white;
+  border: 2px solid #f0e0c8;
+  border-radius: 20px;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+}
+
+.weight-input-label {
+  font-size: 0.82rem;
+  color: #9c7b6a;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.weight-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.weight-input {
+  flex: 1;
+  border: 2px solid #f0e0c8;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #5c4033;
+  background: #faf4ec;
+  outline: none;
+  font-family: inherit;
+  text-align: center;
+  min-width: 0;
+}
+.weight-input:focus { border-color: #c49a6c; }
+
+.weight-input-unit {
+  font-size: 1rem;
+  color: #9c7b6a;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.weight-save-btn {
+  background: #c49a6c;
+  color: white;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+.weight-save-btn:disabled { opacity: 0.4; cursor: default; }
+.weight-save-btn:not(:disabled):active { transform: scale(0.97); }
+
+/* 履歴 */
+.weight-history {
+  background: white;
+  border: 1.5px solid #f0e0c8;
+  border-radius: 20px;
+  padding: 16px;
+}
+
+.weight-history-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #c49a6c;
+  margin: 0 0 12px;
+}
+
+.weight-history-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f5ede0;
+}
+.weight-history-row:last-child { border-bottom: none; }
+
+.weight-history-date {
+  font-size: 0.88rem;
+  color: #5c4033;
+}
+
+.weight-history-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.weight-history-val {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #5c4033;
+}
+
+.weight-history-diff {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+.weight-history-diff.up   { background: #fde8e8; color: #c06060; }
+.weight-history-diff.down { background: #d4f0d8; color: #3a8a4a; }
+.weight-history-diff.same { background: #f0e0c8; color: #9c7b6a; }

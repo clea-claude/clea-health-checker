@@ -20,3 +20,8 @@ export interface SeiriRecord {
   startDate: string;  // YYYY-MM-DD
   endDate?: string;   // YYYY-MM-DD
 }
+
+export interface WeightRecord {
+  date: string;   // YYYY-MM-DD
+  weight: number; // kg
+}
