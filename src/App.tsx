@@ -193,9 +193,6 @@ export default function App() {
               <button className="menu-item" onClick={() => { setView('home'); setEditDate(undefined); setMenuOpen(false); }}>
                 🏠 ホーム
               </button>
-              <button className="menu-item" onClick={() => { setView('home'); setMenuOpen(false); }}>
-                📅 カレンダー
-              </button>
               <div className="menu-divider" />
               <button className="menu-item" onClick={() => { setView('seiri'); setMenuOpen(false); }}>
                 🩸 生理きろく
