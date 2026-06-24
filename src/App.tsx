@@ -7,6 +7,7 @@ import SeiriView from './components/SeiriView';
 import WeightView from './components/WeightView';
 import BackupView from './components/BackupView';
 import HistoryView from './components/HistoryView';
+import DaySummaryView from './components/DaySummaryView';
 import emma1  from './assets/emma/emma_1.png';
 import emma2  from './assets/emma/emma_2.png';
 import emma3  from './assets/emma/emma_3.png';
@@ -37,7 +38,7 @@ const EMMA_IMAGES = [
   emma22, emma23, emma24, emma25, emma30, emma31, emma32,
 ];
 
-type View = 'home' | 'record' | 'points-guide' | 'seiri' | 'weight' | 'backup' | 'history';
+type View = 'home' | 'record' | 'points-guide' | 'seiri' | 'weight' | 'backup' | 'history' | 'day-summary';
 
 function loadRecords(): Record<string, DayRecord> {
   try {
@@ -165,7 +166,12 @@ export default function App() {
 
   const handleSelectDate = (date: string) => {
     setEditDate(date);
-    setView('record');
+    // 今日は記録画面、過去日はサマリー画面
+    if (date === today) {
+      setView('record');
+    } else {
+      setView('day-summary');
+    }
   };
 
   const handleKiroku = () => {
@@ -306,6 +312,14 @@ export default function App() {
               <CalendarView records={records} onSelectDate={handleSelectDate} />
             </div>
           </div>
+        ) : view === 'day-summary' ? (
+          <DaySummaryView
+            date={editDate!}
+            record={records[editDate!]}
+            records={records}
+            onEdit={() => setView('record')}
+            onBack={() => { setView('home'); setEditDate(undefined); }}
+          />
         ) : view === 'history' ? (
           <HistoryView
             records={records}
