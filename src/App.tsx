@@ -190,10 +190,7 @@ export default function App() {
               <button className="menu-close-btn" onClick={() => setMenuOpen(false)}>✕</button>
             </div>
             <nav className="menu-nav">
-              <button className="menu-item" onClick={() => { setView('home'); setEditDate(undefined); setMenuOpen(false); }}>
-                🏠 ホーム
-              </button>
-              <div className="menu-divider" />
+              <div className="menu-divider" style={{ marginTop: 0 }} />
               <button className="menu-item" onClick={() => { setView('seiri'); setMenuOpen(false); }}>
                 🩸 生理きろく
               </button>
