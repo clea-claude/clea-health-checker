@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import type { DayRecord, EmmaState, SeiriRecord, WeightRecord } from './types';
-import { getEmmaState, getStreak, todayStr, calcPoints, sumPointsForDays } from './utils';
+import type { DayRecord, SeiriRecord, WeightRecord } from './types';
+import { getStreak, todayStr, calcPoints, sumPointsForDays } from './utils';
 import TodayView from './components/TodayView';
 import CalendarView from './components/CalendarView';
 import SeiriView from './components/SeiriView';
@@ -98,12 +98,29 @@ function getThisMonthDates(): string[] {
   });
 }
 
-const stateMessages: Record<EmmaState, string> = {
-  happy:    'おかえり〜！きょうもいっしょにきろくしよ 🐾',
-  normal:   'おかえり！きょうのきろく、つけてみよ 📝',
-  sleepy:   'ねむそう…すいみんとれてる？きろくしてね 💤',
-  deadEyes: 'だいじょうぶ…？むりしないでね。きろくしとこ 😵',
-};
+const EMMA_MESSAGES = [
+  '子供のネガティブワードには反応しないよ〜🙅‍♀️',
+  'すいみんが何よりだいじだよ！💤',
+  '抱っこを求められたら即対応！抱っこできるのは今のうち！🫂',
+  '毎日必ず子供に「大好きだよ」を伝えよう💖',
+  'Cause you\'ll be nothing if you forget truly who you are',
+  '子どもを見守ろう！失敗から自ら学ぶ機会を奪わないよ👌',
+  'ケンカは見守るだけ。暴力が出たらレフリーストップしよ🛑',
+  '子どもを「観察」して「実験」の繰り返し！🧪',
+  '子どもに決めさせる！主体性伸ばそ！✨',
+  '「甘え」を受け止める⭐️「人に頼ったら受け入れてもらえた」経験が大事だよ',
+  '注意するときは子供の目を見て伝えよう！👀',
+  '褒めるのではなく「認める」例:「最後まで諦めずにできたね！」👏',
+  '大人も約束は必ず守る！「後でね」と言ったら後で必ずやろ。',
+  '「ごめんね」の強制はしないで相手の気持ちを代弁しよう💁‍♀️',
+  '言葉遣い注意！「やばい・まじ・ガチ」使わないよ〜🙅‍♀️',
+  '何をしても泣いてばかり！→「元気になったらママの時に来てね」。落ち着いたら「自分で気持ちを落ち着かせられたね」。',
+  '唇を尖らせているのは集中しているサイン(フロー状態)、能力を高めている途中！✨',
+  '親が機嫌よく笑顔でいることが、どんな教育や声かけよりも大事🫶',
+  '間違いを訂正しない！😉自分で間違いに気づき、考えさせるべし！',
+];
+
+const randomMessage = EMMA_MESSAGES[Math.floor(Math.random() * EMMA_MESSAGES.length)];
 
 // 起動時にランダムで1枚選ぶ
 const randomEmmaImg = EMMA_IMAGES[Math.floor(Math.random() * EMMA_IMAGES.length)];
@@ -122,7 +139,6 @@ export default function App() {
   const today = todayStr();
   const todayRec = records[today];
   const streak = getStreak(records, today);
-  const emmaState = getEmmaState(todayRec?.sleepMinutes ?? 0);
   const todayPoints = todayRec ? calcPoints(todayRec, streak) : null;
 
   const weekPoints = useMemo(() => sumPointsForDays(records, getThisWeekDates()), [records]);
@@ -259,7 +275,7 @@ export default function App() {
             <div className="speech-bubble">
               {isMondayReminderNeeded
                 ? '月曜日だよ！今週の体重、測った？⚖️ きろくしてね！'
-                : stateMessages[emmaState]}
+                : randomMessage}
             </div>
 
             <button className="kiroku-btn" onClick={handleKiroku}>
