@@ -37,7 +37,7 @@ function buildPointRows(
   streak: number
 ): { label: string; pts: number }[] {
   const rows: { label: string; pts: number }[] = [];
-  const baseBonus = Math.min(4 + streak, 10);
+  const baseBonus = Math.min(streak + 1, 5);
   rows.push({ label: `きろくボーナス（${streak}日連続）`, pts: baseBonus });
   if (form.haiBen)      rows.push({ label: 'お通じ ☘️',        pts: 5 });
   if (form.asaWalking)  rows.push({ label: '朝ウォーキング 🌅', pts: 5 });
