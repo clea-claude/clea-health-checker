@@ -1,28 +1,39 @@
 import { useRef, useState } from 'react';
+import type { DayRecord, SeiriRecord, WeightRecord } from '../types';
+
+interface BackupData {
+  exportedAt: string;
+  health?: Record<string, DayRecord>;
+  seiri?: SeiriRecord[];
+  weight?: WeightRecord[];
+}
 
 interface Props {
-  onRestore: () => void;
+  records: Record<string, DayRecord>;
+  seiriRecords: SeiriRecord[];
+  weightRecords: WeightRecord[];
+  onRestore: (health: Record<string, DayRecord>, seiri: SeiriRecord[], weight: WeightRecord[]) => Promise<void>;
   onBack: () => void;
 }
 
-const KEYS = ['kurea-health-records', 'kurea-seiri-records', 'kurea-weight-records'];
-
-export default function BackupView({ onRestore, onBack }: Props) {
+export default function BackupView({ records, seiriRecords, weightRecords, onRestore, onBack }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [importMsg, setImportMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [importing, setImporting] = useState(false);
 
   const handleExport = () => {
-    const data: Record<string, unknown> = { exportedAt: new Date().toISOString() };
-    KEYS.forEach(key => {
-      const val = localStorage.getItem(key);
-      if (val) data[key] = JSON.parse(val);
-    });
+    const data: BackupData = {
+      exportedAt: new Date().toISOString(),
+      health: records,
+      seiri: seiriRecords,
+      weight: weightRecords,
+    };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     const date = new Date().toISOString().slice(0, 10);
     a.href = url;
-    a.download = `kurea-backup-${date}.json`;
+    a.download = `clea-backup-${date}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -31,22 +42,31 @@ export default function BackupView({ onRestore, onBack }: Props) {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       try {
-        const data = JSON.parse(reader.result as string);
-        let restored = 0;
-        KEYS.forEach(key => {
-          if (data[key] !== undefined) {
-            localStorage.setItem(key, JSON.stringify(data[key]));
-            restored++;
-          }
-        });
-        setImportMsg({ ok: true, text: `復元完了！${restored}件のデータをもどしました 🐾` });
-        setTimeout(() => { onRestore(); }, 1500);
+        const data = JSON.parse(reader.result as string) as BackupData;
+
+        // 旧形式（kurea-*キー）との互換性
+        const rawData = data as unknown as Record<string, unknown>;
+        const health: Record<string, DayRecord> =
+          (data.health as Record<string, DayRecord>) ??
+          (rawData['kurea-health-records'] as Record<string, DayRecord>) ?? {};
+        const seiri: SeiriRecord[] =
+          (data.seiri as SeiriRecord[]) ??
+          (rawData['kurea-seiri-records'] as SeiriRecord[]) ?? [];
+        const weight: WeightRecord[] =
+          (data.weight as WeightRecord[]) ??
+          (rawData['kurea-weight-records'] as WeightRecord[]) ?? [];
+
+        setImporting(true);
+        await onRestore(health, seiri, weight);
+        setImportMsg({ ok: true, text: '復元完了！データをもどしました 🐾' });
       } catch {
         setImportMsg({ ok: false, text: 'ファイルの読み込みに失敗しました。正しいバックアップファイルか確認してください。' });
+      } finally {
+        setImporting(false);
+        if (fileRef.current) fileRef.current.value = '';
       }
-      if (fileRef.current) fileRef.current.value = '';
     };
     reader.readAsText(file);
   };
@@ -62,7 +82,7 @@ export default function BackupView({ onRestore, onBack }: Props) {
       <div className="weight-main-card" style={{ textAlign: 'left' }}>
         <div className="weight-status-label">データをほぞんする</div>
         <p style={{ fontSize: '0.88rem', color: '#9c7b6a', margin: '8px 0 16px' }}>
-          全データをJSONファイルとしてダウンロードします。別のデバイスへの引き継ぎや、万が一のバックアップに使えます。
+          全データをJSONファイルとしてダウンロードします。
         </p>
         <button className="weight-save-btn" style={{ width: '100%', padding: '14px' }} onClick={handleExport}>
           ⬇️ バックアップをダウンロード
@@ -80,8 +100,9 @@ export default function BackupView({ onRestore, onBack }: Props) {
           className="weight-save-btn"
           style={{ width: '100%', padding: '14px', background: '#d4b896' }}
           onClick={() => fileRef.current?.click()}
+          disabled={importing}
         >
-          📂 ファイルを選んで復元
+          {importing ? '復元中…' : '📂 ファイルを選んで復元'}
         </button>
         <input
           ref={fileRef}
@@ -103,16 +124,6 @@ export default function BackupView({ onRestore, onBack }: Props) {
             {importMsg.text}
           </div>
         )}
-      </div>
-
-      {/* 説明 */}
-      <div style={{ padding: '0 4px' }}>
-        <p style={{ fontSize: '0.8rem', color: '#b0967e', lineHeight: 1.7 }}>
-          💡 スマホへの引き継ぎ方<br />
-          ① このページで「バックアップをダウンロード」<br />
-          ② ダウンロードしたファイルをスマホに送る（AirDrop・メール等）<br />
-          ③ スマホのブラウザでアプリを開き、「ファイルを選んで復元」
-        </p>
       </div>
     </div>
   );

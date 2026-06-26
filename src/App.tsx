@@ -1,4 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
+import type { User } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
+import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { auth, db, googleProvider } from './firebase';
 import type { DayRecord, SeiriRecord, WeightRecord } from './types';
 import { getStreak, todayStr, calcPoints, sumPointsForDays } from './utils';
 import TodayView from './components/TodayView';
@@ -28,25 +32,11 @@ import emma31 from './assets/emma/emma_31.png';
 import emma32 from './assets/emma/emma_32.png';
 import './App.css';
 
-const STORAGE_KEY = 'kurea-health-records';
-const SEIRI_KEY = 'kurea-seiri-records';
-const WEIGHT_KEY = 'kurea-weight-records';
-
 const EMMA_IMAGES = [
   emma1, emma2, emma3, emma6, emma7, emma8,
   emma11, emma13, emma14, emma15, emma18,
   emma22, emma23, emma24, emma25, emma30, emma31, emma32,
 ];
-
-type View = 'home' | 'record' | 'points-guide' | 'seiri' | 'weight' | 'backup' | 'history' | 'day-summary';
-
-function loadRecords(): Record<string, DayRecord> {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-  } catch {
-    return {};
-  }
-}
 
 const SEIRI_INITIAL: SeiriRecord[] = [
   { startDate: '2026-01-18', endDate: '2026-01-21' },
@@ -57,31 +47,11 @@ const SEIRI_INITIAL: SeiriRecord[] = [
   { startDate: '2026-06-22' },
 ];
 
-function loadSeiriRecords(): SeiriRecord[] {
-  try {
-    const stored = localStorage.getItem(SEIRI_KEY);
-    const parsed = stored ? JSON.parse(stored) : [];
-    if (!parsed.length) {
-      localStorage.setItem(SEIRI_KEY, JSON.stringify(SEIRI_INITIAL));
-      return SEIRI_INITIAL;
-    }
-    return parsed;
-  } catch {
-    return [];
-  }
-}
-
-function loadWeightRecords(): WeightRecord[] {
-  try {
-    return JSON.parse(localStorage.getItem(WEIGHT_KEY) || '[]');
-  } catch {
-    return [];
-  }
-}
+type View = 'home' | 'record' | 'points-guide' | 'seiri' | 'weight' | 'backup' | 'history' | 'day-summary';
 
 function getThisWeekDates(): string[] {
   const now = new Date();
-  const day = now.getDay(); // 0=Sun
+  const day = now.getDay();
   const daysFromMon = day === 0 ? 6 : day - 1;
   return Array.from({ length: daysFromMon + 1 }, (_, i) => {
     const d = new Date(now);
@@ -121,14 +91,18 @@ const EMMA_MESSAGES = [
 ];
 
 const randomMessage = EMMA_MESSAGES[Math.floor(Math.random() * EMMA_MESSAGES.length)];
-
-// 起動時にランダムで1枚選ぶ
 const randomEmmaImg = EMMA_IMAGES[Math.floor(Math.random() * EMMA_IMAGES.length)];
 
+// Firestoreにデータを保存
+async function saveToFirestore(uid: string, key: string, data: unknown) {
+  await setDoc(doc(db, 'users', uid, 'data', key), { value: JSON.stringify(data) });
+}
+
 export default function App() {
-  const [records, setRecords] = useState<Record<string, DayRecord>>(loadRecords);
-  const [seiriRecords, setSeiriRecords] = useState<SeiriRecord[]>(loadSeiriRecords);
-  const [weightRecords, setWeightRecords] = useState<WeightRecord[]>(loadWeightRecords);
+  const [user, setUser] = useState<User | null | undefined>(undefined); // undefined = loading
+  const [records, setRecords] = useState<Record<string, DayRecord>>({});
+  const [seiriRecords, setSeiriRecords] = useState<SeiriRecord[]>([]);
+  const [weightRecords, setWeightRecords] = useState<WeightRecord[]>([]);
   const [view, setView] = useState<View>('home');
   const [editDate, setEditDate] = useState<string | undefined>(undefined);
   const [saved, setSaved] = useState(false);
@@ -136,11 +110,44 @@ export default function App() {
   const [imgError, setImgError] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // 認証状態を監視
+  useEffect(() => {
+    return onAuthStateChanged(auth, u => setUser(u));
+  }, []);
+
+  // ログイン後にFirestoreをリアルタイム同期
+  useEffect(() => {
+    if (!user) return;
+    const uid = user.uid;
+
+    const unsubs = [
+      onSnapshot(doc(db, 'users', uid, 'data', 'health'), snap => {
+        if (snap.exists()) {
+          setRecords(JSON.parse(snap.data().value));
+        }
+      }),
+      onSnapshot(doc(db, 'users', uid, 'data', 'seiri'), snap => {
+        if (snap.exists()) {
+          setSeiriRecords(JSON.parse(snap.data().value));
+        } else {
+          // 初回のみ過去データをセット
+          saveToFirestore(uid, 'seiri', SEIRI_INITIAL);
+        }
+      }),
+      onSnapshot(doc(db, 'users', uid, 'data', 'weight'), snap => {
+        if (snap.exists()) {
+          setWeightRecords(JSON.parse(snap.data().value));
+        }
+      }),
+    ];
+
+    return () => unsubs.forEach(u => u());
+  }, [user]);
+
   const today = todayStr();
   const todayRec = records[today];
   const streak = getStreak(records, today);
   const todayPoints = todayRec ? calcPoints(todayRec, streak) : null;
-
   const weekPoints = useMemo(() => sumPointsForDays(records, getThisWeekDates()), [records]);
   const monthPoints = useMemo(() => sumPointsForDays(records, getThisMonthDates()), [records]);
 
@@ -148,19 +155,6 @@ export default function App() {
   const dayOfWeek = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
   const dateLabel = dateObj.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric' }) + ' ' + dayOfWeek;
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
-  }, [records]);
-
-  useEffect(() => {
-    localStorage.setItem(SEIRI_KEY, JSON.stringify(seiriRecords));
-  }, [seiriRecords]);
-
-  useEffect(() => {
-    localStorage.setItem(WEIGHT_KEY, JSON.stringify(weightRecords));
-  }, [weightRecords]);
-
-  // 月曜日に今週の体重未記録ならリマインダー
   const isMondayReminderNeeded = (() => {
     const now = new Date();
     if (now.getDay() !== 1) return false;
@@ -169,9 +163,12 @@ export default function App() {
     return !weightRecords.some(r => new Date(r.date + 'T00:00:00') >= monday);
   })();
 
-  const handleSave = (date: string, rec: DayRecord) => {
+  const handleSave = async (date: string, rec: DayRecord) => {
     const newRecords = { ...records, [date]: rec };
     setRecords(newRecords);
+    if (user) {
+      await saveToFirestore(user.uid, 'health', newRecords);
+    }
     const newStreak = getStreak(newRecords, date);
     setLastPoints(calcPoints(rec, newStreak));
     setSaved(true);
@@ -180,9 +177,22 @@ export default function App() {
     setEditDate(undefined);
   };
 
+  const handleSaveSeiri = async (data: SeiriRecord[]) => {
+    setSeiriRecords(data);
+    if (user) {
+      await saveToFirestore(user.uid, 'seiri', data);
+    }
+  };
+
+  const handleSaveWeight = async (data: WeightRecord[]) => {
+    setWeightRecords(data);
+    if (user) {
+      await saveToFirestore(user.uid, 'weight', data);
+    }
+  };
+
   const handleSelectDate = (date: string) => {
     setEditDate(date);
-    // 今日は記録画面、過去日はサマリー画面
     if (date === today) {
       setView('record');
     } else {
@@ -190,14 +200,42 @@ export default function App() {
     }
   };
 
-  const handleKiroku = () => {
-    setEditDate(undefined);
-    setView('record');
-  };
+  // ローディング中
+  if (user === undefined) {
+    return (
+      <div className="app" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100svh' }}>
+        <div style={{ textAlign: 'center', color: '#c49a6c', fontWeight: 700 }}>
+          <img src={randomEmmaImg} alt="エマ" style={{ width: 120, marginBottom: 16 }} />
+          <div>よみこみちゅう…</div>
+        </div>
+      </div>
+    );
+  }
+
+  // 未ログイン
+  if (!user) {
+    return (
+      <div className="app" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100svh', gap: 24 }}>
+        <img src={randomEmmaImg} alt="エマ" style={{ width: 200 }} />
+        <div style={{ fontSize: '1.2rem', fontWeight: 700, color: '#5c4033' }}>くれあのヘルスチェッカー</div>
+        <div style={{ fontSize: '0.9rem', color: '#9c7b6a' }}>Googleアカウントでログインしてね</div>
+        <button
+          onClick={() => signInWithPopup(auth, googleProvider)}
+          style={{
+            background: '#c49a6c', color: 'white', border: 'none',
+            borderRadius: 20, padding: '14px 32px',
+            fontSize: '1rem', fontWeight: 700, cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}
+        >
+          🔑 Googleでログイン
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="app">
-      {/* ハンバーガーメニュー */}
       {menuOpen && (
         <div className="menu-overlay" onClick={() => setMenuOpen(false)}>
           <div className="menu-drawer" onClick={e => e.stopPropagation()}>
@@ -223,12 +261,15 @@ export default function App() {
               <button className="menu-item" onClick={() => { setView('backup'); setMenuOpen(false); }}>
                 💾 バックアップ
               </button>
+              <div className="menu-divider" />
+              <button className="menu-item" onClick={() => { signOut(auth); setMenuOpen(false); }} style={{ color: '#c06060' }}>
+                🚪 ログアウト
+              </button>
             </nav>
           </div>
         </div>
       )}
 
-      {/* ヘッダー */}
       <header className="app-header">
         <div className="header-emma-icon" onClick={() => setView('home')} style={{ cursor: 'pointer' }}>
           {!imgError ? (
@@ -258,30 +299,19 @@ export default function App() {
         {view === 'home' ? (
           <div className="home-view">
             <div className="today-date-label">{dateLabel}</div>
-
             <div className="emma-main-section">
               {!imgError ? (
-                <img
-                  src={randomEmmaImg}
-                  alt="エマ"
-                  className="emma-main-img"
-                  onError={() => setImgError(true)}
-                />
+                <img src={randomEmmaImg} alt="エマ" className="emma-main-img" onError={() => setImgError(true)} />
               ) : (
                 <div className="emma-placeholder">🐾</div>
               )}
             </div>
-
             <div className="speech-bubble">
-              {isMondayReminderNeeded
-                ? '月曜日だよ！今週の体重、測った？⚖️ きろくしてね！'
-                : randomMessage}
+              {isMondayReminderNeeded ? '月曜日だよ！今週の体重、測った？⚖️ きろくしてね！' : randomMessage}
             </div>
-
-            <button className="kiroku-btn" onClick={handleKiroku}>
+            <button className="kiroku-btn" onClick={() => { setEditDate(undefined); setView('record'); }}>
               📝 きろくする
             </button>
-
             <div className="stats-row">
               <div className="stat-card">
                 <div className="stat-label">ポイント</div>
@@ -299,12 +329,9 @@ export default function App() {
               </div>
               <div className="stat-card">
                 <div className="stat-label">れんぞくきろく</div>
-                <div className="stat-value">
-                  {streak}<span className="stat-unit">にち</span>
-                </div>
+                <div className="stat-value">{streak}<span className="stat-unit">にち</span></div>
               </div>
             </div>
-
             <div className="period-points-row">
               <div className="period-points-item">
                 <span className="period-points-label">今週</span>
@@ -316,7 +343,6 @@ export default function App() {
                 <span className="period-points-val">{monthPoints > 0 ? `+${monthPoints}` : monthPoints}pt</span>
               </div>
             </div>
-
             <div className="home-calendar-section">
               <div className="home-calendar-header">📅 カレンダー</div>
               <CalendarView records={records} onSelectDate={handleSelectDate} />
@@ -331,28 +357,27 @@ export default function App() {
             onBack={() => { setView('home'); setEditDate(undefined); }}
           />
         ) : view === 'history' ? (
-          <HistoryView
-            records={records}
-            weightRecords={weightRecords}
-            onBack={() => setView('home')}
-          />
+          <HistoryView records={records} weightRecords={weightRecords} onBack={() => setView('home')} />
         ) : view === 'backup' ? (
           <BackupView
-            onRestore={() => { window.location.reload(); }}
+            records={records}
+            seiriRecords={seiriRecords}
+            weightRecords={weightRecords}
+            onRestore={async (health, seiri, weight) => {
+              if (!user) return;
+              const uid = user.uid;
+              await Promise.all([
+                saveToFirestore(uid, 'health', health),
+                saveToFirestore(uid, 'seiri', seiri),
+                saveToFirestore(uid, 'weight', weight),
+              ]);
+            }}
             onBack={() => setView('home')}
           />
         ) : view === 'weight' ? (
-          <WeightView
-            records={weightRecords}
-            onSave={setWeightRecords}
-            onBack={() => setView('home')}
-          />
+          <WeightView records={weightRecords} onSave={handleSaveWeight} onBack={() => setView('home')} />
         ) : view === 'seiri' ? (
-          <SeiriView
-            records={seiriRecords}
-            onSave={setSeiriRecords}
-            onBack={() => setView('home')}
-          />
+          <SeiriView records={seiriRecords} onSave={handleSaveSeiri} onBack={() => setView('home')} />
         ) : view === 'points-guide' ? (
           <div className="points-guide-view">
             <div className="today-header">
@@ -361,54 +386,28 @@ export default function App() {
             </div>
             <div className="points-guide-section">
               <div className="points-guide-category">きろくボーナス</div>
-              <div className="points-guide-row">
-                <span>きろくしただけ（1日目）</span><span className="pos">+1pt</span>
-              </div>
-              <div className="points-guide-row">
-                <span>2日連続</span><span className="pos">+2pt</span>
-              </div>
-              <div className="points-guide-row">
-                <span>3日連続</span><span className="pos">+3pt</span>
-              </div>
-              <div className="points-guide-row sub">
-                <span>…1日ごとに+1pt、最大</span><span className="pos">+5pt</span>
-              </div>
+              <div className="points-guide-row"><span>きろくしただけ（1日目）</span><span className="pos">+1pt</span></div>
+              <div className="points-guide-row"><span>2日連続</span><span className="pos">+2pt</span></div>
+              <div className="points-guide-row"><span>3日連続</span><span className="pos">+3pt</span></div>
+              <div className="points-guide-row sub"><span>…1日ごとに+1pt、最大</span><span className="pos">+5pt</span></div>
             </div>
             <div className="points-guide-section">
               <div className="points-guide-category">けんこう</div>
-              <div className="points-guide-row">
-                <span>☘️ お通じ</span><span className="pos">+5pt</span>
-              </div>
-              <div className="points-guide-row">
-                <span>🌅 朝ウォーキング</span><span className="pos">+5pt</span>
-              </div>
-              <div className="points-guide-row">
-                <span>🏃 運動</span><span className="pos">+10pt</span>
-              </div>
+              <div className="points-guide-row"><span>☘️ お通じ</span><span className="pos">+5pt</span></div>
+              <div className="points-guide-row"><span>🌅 朝ウォーキング</span><span className="pos">+5pt</span></div>
+              <div className="points-guide-row"><span>🏃 運動</span><span className="pos">+10pt</span></div>
             </div>
             <div className="points-guide-section">
               <div className="points-guide-category">おやつ</div>
-              <div className="points-guide-row">
-                <span>💪 我慢できた！</span><span className="pos">+5pt</span>
-              </div>
-              <div className="points-guide-row">
-                <span>🌿 すこしだけ</span><span className="neutral">±0pt</span>
-              </div>
-              <div className="points-guide-row">
-                <span>🍬 食べちゃった</span><span className="neg">-5pt</span>
-              </div>
+              <div className="points-guide-row"><span>💪 我慢できた！</span><span className="pos">+5pt</span></div>
+              <div className="points-guide-row"><span>🌿 すこしだけ</span><span className="neutral">±0pt</span></div>
+              <div className="points-guide-row"><span>🍬 食べちゃった</span><span className="neg">-5pt</span></div>
             </div>
             <div className="points-guide-section">
               <div className="points-guide-category">すいみん</div>
-              <div className="points-guide-row">
-                <span>😴 7時間以上</span><span className="pos">+10pt</span>
-              </div>
-              <div className="points-guide-row">
-                <span>😐 6〜7時間</span><span className="neutral">±0pt</span>
-              </div>
-              <div className="points-guide-row">
-                <span>😵 6時間未満</span><span className="neg">-10pt</span>
-              </div>
+              <div className="points-guide-row"><span>😴 7時間以上</span><span className="pos">+10pt</span></div>
+              <div className="points-guide-row"><span>😐 6〜7時間</span><span className="neutral">±0pt</span></div>
+              <div className="points-guide-row"><span>😵 6時間未満</span><span className="neg">-10pt</span></div>
             </div>
           </div>
         ) : (

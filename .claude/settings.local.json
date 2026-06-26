@@ -11,7 +11,21 @@
       "mcp__Claude_in_Chrome__tabs_context_mcp",
       "Bash(unzip -o \"/Users/yumi/Downloads/Usagi_Trial.zip\" -d \"/Users/yumi/Downloads/Usagi_Trial/\")",
       "Read(//Users/yumi/Downloads/**)",
-      "Bash(cp \"/Users/yumi/Downloads/Usagi_Trial/Usagi_Trial/RabbitandFullMoonFree-Regular.otf\" \"/Users/yumi/Claude code/くれあのヘルスチェッカー/src/assets/\")"
+      "Bash(cp \"/Users/yumi/Downloads/Usagi_Trial/Usagi_Trial/RabbitandFullMoonFree-Regular.otf\" \"/Users/yumi/Claude code/くれあのヘルスチェッカー/src/assets/\")",
+      "Bash(curl -s https://api.github.com/repos/clea-claude/clea-health-checker)",
+      "Bash(curl -s https://api.github.com/repos/clea-claude/clea-health-checker/contents)",
+      "WebFetch(domain:hamuhamu-diet.vercel.app)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(python3 -c ' *)",
+      "Bash(gh browse *)",
+      "Bash(git remote *)",
+      "Bash(gh api *)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(git commit -m 'Firebase Auth + Firestore リアルタイム同期を実装 *)"
     ]
   }
 }
