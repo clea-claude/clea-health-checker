@@ -38,14 +38,6 @@ const EMMA_IMAGES = [
   emma22, emma23, emma24, emma25, emma30, emma31, emma32,
 ];
 
-const SEIRI_INITIAL: SeiriRecord[] = [
-  { startDate: '2026-01-18', endDate: '2026-01-21' },
-  { startDate: '2026-03-04', endDate: '2026-03-06' },
-  { startDate: '2026-04-02', endDate: '2026-04-06' },
-  { startDate: '2026-04-28', endDate: '2026-05-03' },
-  { startDate: '2026-05-26', endDate: '2026-05-30' },
-  { startDate: '2026-06-22' },
-];
 
 type View = 'home' | 'record' | 'points-guide' | 'seiri' | 'weight' | 'backup' | 'history' | 'day-summary';
 
@@ -129,9 +121,6 @@ export default function App() {
       onSnapshot(doc(db, 'users', uid, 'data', 'seiri'), snap => {
         if (snap.exists()) {
           setSeiriRecords(JSON.parse(snap.data().value));
-        } else {
-          // 初回のみ過去データをセット
-          saveToFirestore(uid, 'seiri', SEIRI_INITIAL);
         }
       }),
       onSnapshot(doc(db, 'users', uid, 'data', 'weight'), snap => {
