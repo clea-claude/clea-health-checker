@@ -13,10 +13,11 @@ interface Props {
   seiriRecords: SeiriRecord[];
   weightRecords: WeightRecord[];
   onRestore: (health: Record<string, DayRecord>, seiri: SeiriRecord[], weight: WeightRecord[]) => Promise<void>;
+  onDeleteAll: () => Promise<void>;
   onBack: () => void;
 }
 
-export default function BackupView({ records, seiriRecords, weightRecords, onRestore, onBack }: Props) {
+export default function BackupView({ records, seiriRecords, weightRecords, onRestore, onDeleteAll, onBack }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [importMsg, setImportMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [importing, setImporting] = useState(false);
@@ -124,6 +125,27 @@ export default function BackupView({ records, seiriRecords, weightRecords, onRes
             {importMsg.text}
           </div>
         )}
+      </div>
+
+      {/* 全データ削除 */}
+      <div className="weight-input-card" style={{ borderColor: '#f5c0c0' }}>
+        <div className="weight-input-label" style={{ color: '#c06060' }}>データを全て削除する</div>
+        <p style={{ fontSize: '0.85rem', color: '#9c7b6a', margin: '0 0 14px' }}>
+          全ての記録をFirestoreから完全に削除します。<br />
+          ⚠️ この操作は元に戻せません。
+        </p>
+        <button
+          className="weight-save-btn"
+          style={{ width: '100%', padding: '14px', background: '#e8907a' }}
+          onClick={async () => {
+            if (confirm('全てのデータを削除しますか？この操作は元に戻せません。')) {
+              await onDeleteAll();
+              alert('削除しました');
+            }
+          }}
+        >
+          🗑️ 全データを削除
+        </button>
       </div>
     </div>
   );

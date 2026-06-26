@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { User } from 'firebase/auth';
 import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
-import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { doc, onSnapshot, setDoc, deleteDoc } from 'firebase/firestore';
 import { auth, db, googleProvider } from './firebase';
 import type { DayRecord, SeiriRecord, WeightRecord } from './types';
 import { getStreak, todayStr, calcPoints, sumPointsForDays } from './utils';
@@ -189,6 +189,19 @@ export default function App() {
     }
   };
 
+  const handleDeleteAllData = async () => {
+    if (!user) return;
+    const uid = user.uid;
+    await Promise.all([
+      deleteDoc(doc(db, 'users', uid, 'data', 'health')),
+      deleteDoc(doc(db, 'users', uid, 'data', 'seiri')),
+      deleteDoc(doc(db, 'users', uid, 'data', 'weight')),
+    ]);
+    setRecords({});
+    setSeiriRecords([]);
+    setWeightRecords([]);
+  };
+
   // ローディング中
   if (user === undefined) {
     return (
@@ -361,6 +374,7 @@ export default function App() {
                 saveToFirestore(uid, 'weight', weight),
               ]);
             }}
+            onDeleteAll={handleDeleteAllData}
             onBack={() => setView('home')}
           />
         ) : view === 'weight' ? (
