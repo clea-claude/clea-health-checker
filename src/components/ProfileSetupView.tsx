@@ -75,28 +75,31 @@ export default function ProfileSetupView({ initialNickname = '', initialPhotoURL
       )}
 
       {/* アイコン */}
-      <div
-        onClick={() => fileRef.current?.click()}
-        style={{
-          width: 120, height: 120, borderRadius: '50%',
-          background: '#f5e6d0', border: '3px solid #e8c9a0',
-          overflow: 'hidden', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          position: 'relative',
-        }}
-      >
-        {photoURL ? (
-          <img src={photoURL} alt="アイコン" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        ) : (
-          <span style={{ fontSize: '3rem' }}>🐾</span>
-        )}
-        <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0,
-          background: 'rgba(0,0,0,0.4)', color: 'white',
-          fontSize: '0.7rem', textAlign: 'center', padding: '4px 0',
-        }}>
-          タップして変更
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+        <div
+          style={{
+            width: 120, height: 120, borderRadius: '50%',
+            background: '#f5e6d0', border: '3px solid #e8c9a0',
+            overflow: 'hidden',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          {photoURL ? (
+            <img src={photoURL} alt="アイコン" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <span style={{ fontSize: '3rem' }}>🐾</span>
+          )}
         </div>
+        <button
+          onClick={() => fileRef.current?.click()}
+          style={{
+            background: 'white', border: '1.5px solid #f0e0c8', borderRadius: 20,
+            padding: '8px 20px', fontSize: '0.85rem', color: '#9c7b6a',
+            cursor: 'pointer', fontFamily: 'inherit',
+          }}
+        >
+          画像を選ぶ
+        </button>
       </div>
       <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImageChange} />
 
