@@ -27,7 +27,8 @@
       "Bash(npm run *)",
       "Bash(git commit -m 'Firebase Auth + Firestore リアルタイム同期を実装 *)",
       "Bash(git commit -m '新規ユーザーへの生理初期データ自動セットを削除（プライバシー修正） *)",
-      "Bash(git commit -m 'バックアップ画面に全データ削除ボタンを追加 *)"
+      "Bash(git commit -m 'バックアップ画面に全データ削除ボタンを追加 *)",
+      "Bash(git commit -m 'プロフィール機能を追加（ニックネーム・アイコン画像） *)"
     ]
   }
 }

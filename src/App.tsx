@@ -12,6 +12,7 @@ import WeightView from './components/WeightView';
 import BackupView from './components/BackupView';
 import HistoryView from './components/HistoryView';
 import DaySummaryView from './components/DaySummaryView';
+import ProfileSetupView from './components/ProfileSetupView';
 import emma1  from './assets/emma/emma_1.png';
 import emma2  from './assets/emma/emma_2.png';
 import emma3  from './assets/emma/emma_3.png';
@@ -39,7 +40,7 @@ const EMMA_IMAGES = [
 ];
 
 
-type View = 'home' | 'record' | 'points-guide' | 'seiri' | 'weight' | 'backup' | 'history' | 'day-summary';
+type View = 'home' | 'record' | 'points-guide' | 'seiri' | 'weight' | 'backup' | 'history' | 'day-summary' | 'profile-edit';
 
 function getThisWeekDates(): string[] {
   const now = new Date();
@@ -92,6 +93,8 @@ async function saveToFirestore(uid: string, key: string, data: unknown) {
 
 export default function App() {
   const [user, setUser] = useState<User | null | undefined>(undefined); // undefined = loading
+  const [nickname, setNickname] = useState<string | null>(null); // null = プロフィール未ロード
+  const [profilePhoto, setProfilePhoto] = useState<string>('');
   const [records, setRecords] = useState<Record<string, DayRecord>>({});
   const [seiriRecords, setSeiriRecords] = useState<SeiriRecord[]>([]);
   const [weightRecords, setWeightRecords] = useState<WeightRecord[]>([]);
@@ -113,6 +116,15 @@ export default function App() {
     const uid = user.uid;
 
     const unsubs = [
+      onSnapshot(doc(db, 'users', uid, 'data', 'profile'), snap => {
+        if (snap.exists()) {
+          const p = JSON.parse(snap.data().value) as { nickname: string; photoURL: string };
+          setNickname(p.nickname);
+          setProfilePhoto(p.photoURL ?? '');
+        } else {
+          setNickname(''); // 空文字 = プロフィール未設定（セットアップ画面へ）
+        }
+      }),
       onSnapshot(doc(db, 'users', uid, 'data', 'health'), snap => {
         if (snap.exists()) {
           setRecords(JSON.parse(snap.data().value));
@@ -189,6 +201,11 @@ export default function App() {
     }
   };
 
+  const handleSaveProfile = async (name: string, photo: string) => {
+    if (!user) return;
+    await saveToFirestore(user.uid, 'profile', { nickname: name, photoURL: photo });
+  };
+
   const handleDeleteAllData = async () => {
     if (!user) return;
     const uid = user.uid;
@@ -202,8 +219,8 @@ export default function App() {
     setWeightRecords([]);
   };
 
-  // ローディング中
-  if (user === undefined) {
+  // ローディング中（認証 or プロフィール未ロード）
+  if (user === undefined || (user && nickname === null)) {
     return (
       <div className="app" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100svh' }}>
         <div style={{ textAlign: 'center', color: '#c49a6c', fontWeight: 700 }}>
@@ -212,6 +229,11 @@ export default function App() {
         </div>
       </div>
     );
+  }
+
+  // プロフィール未設定（初回ログイン）
+  if (user && nickname === '') {
+    return <ProfileSetupView onSave={handleSaveProfile} />;
   }
 
   // 未ログイン
@@ -264,6 +286,10 @@ export default function App() {
                 💾 バックアップ
               </button>
               <div className="menu-divider" />
+              <button className="menu-item" onClick={() => { setView('profile-edit'); setMenuOpen(false); }}>
+                👤 プロフィール編集
+              </button>
+              <div className="menu-divider" />
               <button className="menu-item" onClick={() => { signOut(auth); setMenuOpen(false); }} style={{ color: '#c06060' }}>
                 🚪 ログアウト
               </button>
@@ -274,14 +300,16 @@ export default function App() {
 
       <header className="app-header">
         <div className="header-emma-icon" onClick={() => setView('home')} style={{ cursor: 'pointer' }}>
-          {!imgError ? (
+          {profilePhoto ? (
+            <img src={profilePhoto} alt="アイコン" />
+          ) : !imgError ? (
             <img src={randomEmmaImg} alt="エマ" onError={() => setImgError(true)} />
           ) : (
             <span className="header-emma-icon-placeholder">🐾</span>
           )}
         </div>
         <div className="header-info">
-          <span className="header-name">エマ</span>
+          <span className="header-name">{nickname || 'エマ'}</span>
         </div>
         <button className="hamburger-btn" onClick={() => setMenuOpen(true)}>≡</button>
       </header>
@@ -413,6 +441,14 @@ export default function App() {
               <div className="points-guide-row"><span>😵 6時間未満</span><span className="neg">-10pt</span></div>
             </div>
           </div>
+        ) : view === 'profile-edit' ? (
+          <ProfileSetupView
+            initialNickname={nickname ?? ''}
+            initialPhotoURL={profilePhoto}
+            onSave={async (name, photo) => { await handleSaveProfile(name, photo); setView('home'); }}
+            isEdit
+            onBack={() => setView('home')}
+          />
         ) : (
           <TodayView
             records={records}
