@@ -36,7 +36,8 @@
       "Bash(git commit -m 'WeightViewのsaved変数参照エラーを修正 *)",
       "Bash(git commit -m '体重グラフを追加（折れ線グラフで変化を可視化） *)",
       "Bash(git commit -m 'faviconを「1_はーい.png」に変更 *)",
-      "Bash(git commit -m '生理予定日の前日にホームでリマインダー表示 *)"
+      "Bash(git commit -m '生理予定日の前日にホームでリマインダー表示 *)",
+      "Bash(git commit -m '生理記録ページに生理予定日を常時表示 *)"
     ]
   }
 }

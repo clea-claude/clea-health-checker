@@ -93,6 +93,18 @@ export default function SeiriView({ records, onSave, onBack }: Props) {
         )}
       </div>
 
+      {/* 生理予定日（常に表示） */}
+      <div style={{
+        background: 'white', border: '1.5px solid #f0e0c8', borderRadius: 16,
+        padding: '14px 20px', marginBottom: 12, display: 'flex',
+        alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <span style={{ fontSize: '0.9rem', color: '#9c7b6a' }}>🩸 生理予定日</span>
+        <span style={{ fontSize: '1rem', fontWeight: 700, color: '#c06080' }}>
+          {nextDate ? `${formatDate(nextDate)} ごろ` : '—'}
+        </span>
+      </div>
+
       {/* ボタン */}
       <div className="seiri-btn-row">
         <button
