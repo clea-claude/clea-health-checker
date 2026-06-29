@@ -120,7 +120,7 @@ export default function WeightView({ records, onSave, onBack }: Props) {
             onClick={handleSave}
             disabled={!inputWeight}
           >
-            {saved ? '✓ 保存！' : 'きろく'}
+            きろく
           </button>
         </div>
       </div>

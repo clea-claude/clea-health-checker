@@ -32,7 +32,8 @@
       "Bash(git commit -m 'プロフィール設定のアイコン表示を修正 *)",
       "Bash(git commit -m 'faviconをエマの画像に変更、タブタイトルを設定 *)",
       "Bash(git commit -m 'タブタイトルを「My health checker✨」に変更 *)",
-      "Bash(git commit -m '体重記録時に前回比コメントポップアップを追加 *)"
+      "Bash(git commit -m '体重記録時に前回比コメントポップアップを追加 *)",
+      "Bash(git commit -m 'WeightViewのsaved変数参照エラーを修正 *)"
     ]
   }
 }
