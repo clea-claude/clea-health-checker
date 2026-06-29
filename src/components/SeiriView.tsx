@@ -1,5 +1,5 @@
 import type { SeiriRecord } from '../types';
-import { todayStr } from '../utils';
+import { todayStr, calcNextPeriodDate } from '../utils';
 import './SeiriView.css';
 
 interface Props {
@@ -10,12 +10,6 @@ interface Props {
 
 function daysBetween(a: string, b: string): number {
   return Math.round((new Date(b).getTime() - new Date(a).getTime()) / 86400000);
-}
-
-function addDays(date: string, days: number): string {
-  const d = new Date(date);
-  d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
 }
 
 function formatDate(dateStr: string): string {
@@ -38,9 +32,7 @@ export default function SeiriView({ records, onSave, onBack }: Props) {
 
   const isOngoing = latest && !latest.endDate;
   const currentDay = isOngoing ? daysBetween(latest.startDate, today) + 1 : null;
-  const nextDate = latest && avgCycle
-    ? addDays(latest.startDate, avgCycle)
-    : null;
+  const nextDate = calcNextPeriodDate(records);
   const daysUntilNext = nextDate ? daysBetween(today, nextDate) : null;
 
   const handleStart = () => {

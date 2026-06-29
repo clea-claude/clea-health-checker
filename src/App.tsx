@@ -4,7 +4,7 @@ import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 import { doc, onSnapshot, setDoc, deleteDoc } from 'firebase/firestore';
 import { auth, db, googleProvider } from './firebase';
 import type { DayRecord, SeiriRecord, WeightRecord } from './types';
-import { getStreak, todayStr, calcPoints, sumPointsForDays } from './utils';
+import { getStreak, todayStr, calcPoints, sumPointsForDays, calcNextPeriodDate } from './utils';
 import TodayView from './components/TodayView';
 import CalendarView from './components/CalendarView';
 import SeiriView from './components/SeiriView';
@@ -162,6 +162,15 @@ export default function App() {
     const monday = new Date(now);
     monday.setHours(0, 0, 0, 0);
     return !weightRecords.some(r => new Date(r.date + 'T00:00:00') >= monday);
+  })();
+
+  const isSeiriReminder = (() => {
+    const nextDate = calcNextPeriodDate(seiriRecords);
+    if (!nextDate) return false;
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+    return nextDate === tomorrowStr;
   })();
 
   const handleSave = async (date: string, rec: DayRecord) => {
@@ -337,7 +346,11 @@ export default function App() {
               )}
             </div>
             <div className="speech-bubble">
-              {isMondayReminderNeeded ? '月曜日だよ！今週の体重、測った？⚖️ きろくしてね！' : randomMessage}
+              {isSeiriReminder
+                ? '明日は生理の予定日だよ〜🩸 ナプキン用意しておこうね！'
+                : isMondayReminderNeeded
+                ? '月曜日だよ！今週の体重、測った？⚖️ きろくしてね！'
+                : randomMessage}
             </div>
             <button className="kiroku-btn" onClick={() => { setEditDate(undefined); setView('record'); }}>
               📝 きろくする

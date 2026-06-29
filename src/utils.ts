@@ -1,4 +1,4 @@
-import type { DayRecord, EmmaState } from './types';
+import type { DayRecord, EmmaState, SeiriRecord } from './types';
 
 export function calcSleepMinutes(suimin: string, kisho: string): number {
   if (!suimin || !kisho) return 0;
@@ -92,6 +92,17 @@ export function sumPointsForDays(
     const s = getStreak(records, date);
     return total + calcPoints(rec, s);
   }, 0);
+}
+
+export function calcNextPeriodDate(records: SeiriRecord[]): string | null {
+  const starts = records.map(r => r.startDate).sort();
+  if (starts.length < 2) return null;
+  const diffs = starts.slice(1).map((s, i) => Math.round((new Date(s).getTime() - new Date(starts[i]).getTime()) / 86400000));
+  const avg = Math.round(diffs.reduce((a, b) => a + b, 0) / diffs.length);
+  const lastStart = starts[starts.length - 1];
+  const next = new Date(lastStart);
+  next.setDate(next.getDate() + avg);
+  return next.toISOString().slice(0, 10);
 }
 
 export function calcPoints(rec: DayRecord, streak: number): number {
