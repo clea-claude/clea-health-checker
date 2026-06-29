@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { SeiriRecord } from '../types';
 import { todayStr, calcNextPeriodDate } from '../utils';
 import './SeiriView.css';
@@ -35,20 +36,21 @@ export default function SeiriView({ records, onSave, onBack }: Props) {
   const nextDate = calcNextPeriodDate(records);
   const daysUntilNext = nextDate ? daysBetween(today, nextDate) : null;
 
+  const [startInput, setStartInput] = useState(today);
+  const [endInput, setEndInput] = useState(today);
+
   const handleStart = () => {
-    // すでに今日が開始日なら何もしない
-    if (latest?.startDate === today) return;
-    // 前の記録が終わってない場合は自動で終了
+    if (!startInput) return;
     const updated = records.map(r =>
-      !r.endDate ? { ...r, endDate: today } : r
+      !r.endDate ? { ...r, endDate: startInput } : r
     );
-    onSave([...updated, { startDate: today }]);
+    onSave([...updated, { startDate: startInput }]);
   };
 
   const handleEnd = () => {
-    if (!isOngoing) return;
+    if (!isOngoing || !endInput) return;
     onSave(records.map(r =>
-      r.startDate === latest.startDate ? { ...r, endDate: today } : r
+      r.startDate === latest.startDate ? { ...r, endDate: endInput } : r
     ));
   };
 
@@ -105,22 +107,58 @@ export default function SeiriView({ records, onSave, onBack }: Props) {
         </span>
       </div>
 
-      {/* ボタン */}
-      <div className="seiri-btn-row">
-        <button
-          className="seiri-btn start"
-          onClick={handleStart}
-          disabled={latest?.startDate === today}
-        >
-          🩸 開始をきろく
-        </button>
-        <button
-          className="seiri-btn end"
-          onClick={handleEnd}
-          disabled={!isOngoing || latest?.endDate === today}
-        >
-          ⭕ 終了をきろく
-        </button>
+      {/* 開始をきろく */}
+      <div style={{
+        background: 'white', border: '1.5px solid #f0e0c8', borderRadius: 16,
+        padding: '16px', marginBottom: 10,
+      }}>
+        <div style={{ fontSize: '0.85rem', color: '#9c7b6a', marginBottom: 10 }}>🩸 開始日をきろく</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <input
+            type="date"
+            value={startInput}
+            max={today}
+            onChange={e => setStartInput(e.target.value)}
+            style={{
+              flex: 1, padding: '10px 12px', border: '1.5px solid #f0e0c8',
+              borderRadius: 12, fontSize: '0.95rem', fontFamily: 'inherit',
+              color: '#5c4033', background: '#faf4ec',
+            }}
+          />
+          <button className="seiri-btn start" style={{ margin: 0, flex: 'none' }} onClick={handleStart}>
+            きろく
+          </button>
+        </div>
+      </div>
+
+      {/* 終了をきろく */}
+      <div style={{
+        background: 'white', border: '1.5px solid #f0e0c8', borderRadius: 16,
+        padding: '16px', marginBottom: 12,
+      }}>
+        <div style={{ fontSize: '0.85rem', color: '#9c7b6a', marginBottom: 10 }}>⭕ 終了日をきろく</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <input
+            type="date"
+            value={endInput}
+            max={today}
+            onChange={e => setEndInput(e.target.value)}
+            style={{
+              flex: 1, padding: '10px 12px', border: '1.5px solid #f0e0c8',
+              borderRadius: 12, fontSize: '0.95rem', fontFamily: 'inherit',
+              color: isOngoing ? '#5c4033' : '#c0a898', background: '#faf4ec',
+            }}
+            disabled={!isOngoing}
+          />
+          <button
+            className="seiri-btn end"
+            style={{ margin: 0, flex: 'none' }}
+            onClick={handleEnd}
+            disabled={!isOngoing}
+          >
+            きろく
+          </button>
+        </div>
       </div>
 
       {/* 周期リスト */}
