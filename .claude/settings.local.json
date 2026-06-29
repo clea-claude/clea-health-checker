@@ -30,7 +30,8 @@
       "Bash(git commit -m 'バックアップ画面に全データ削除ボタンを追加 *)",
       "Bash(git commit -m 'プロフィール機能を追加（ニックネーム・アイコン画像） *)",
       "Bash(git commit -m 'プロフィール設定のアイコン表示を修正 *)",
-      "Bash(git commit -m 'faviconをエマの画像に変更、タブタイトルを設定 *)"
+      "Bash(git commit -m 'faviconをエマの画像に変更、タブタイトルを設定 *)",
+      "Bash(git commit -m 'タブタイトルを「My health checker✨」に変更 *)"
     ]
   }
 }
