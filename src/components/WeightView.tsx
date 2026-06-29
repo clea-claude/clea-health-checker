@@ -14,6 +14,61 @@ function formatDate(dateStr: string): string {
   return d.toLocaleDateString('ja-JP', { month: 'long', day: 'numeric', weekday: 'short' });
 }
 
+function WeightChart({ records }: { records: WeightRecord[] }) {
+  const sorted = [...records].sort((a, b) => a.date.localeCompare(b.date));
+  if (sorted.length < 2) return null;
+
+  const W = 320, H = 140, PX = 24, PY = 16;
+  const weights = sorted.map(r => r.weight);
+  const minW = Math.min(...weights);
+  const maxW = Math.max(...weights);
+  const range = maxW - minW || 1;
+
+  const toX = (i: number) => PX + (i / (sorted.length - 1)) * (W - PX * 2);
+  const toY = (w: number) => PY + (1 - (w - minW) / range) * (H - PY * 2);
+
+  const points = sorted.map((r, i) => `${toX(i)},${toY(r.weight)}`).join(' ');
+  const area = `M${toX(0)},${toY(sorted[0].weight)} ` +
+    sorted.slice(1).map((r, i) => `L${toX(i + 1)},${toY(r.weight)}`).join(' ') +
+    ` L${toX(sorted.length - 1)},${H - PY} L${toX(0)},${H - PY} Z`;
+
+  return (
+    <div style={{ background: 'white', borderRadius: 18, border: '1.5px solid #f0e0c8', padding: '16px 8px 8px', marginBottom: 12 }}>
+      <div style={{ fontSize: '0.82rem', color: '#9c7b6a', marginLeft: 16, marginBottom: 4 }}>体重グラフ</div>
+      <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{ display: 'block', overflow: 'visible' }}>
+        {/* グリッド線 */}
+        {[0, 0.5, 1].map(t => {
+          const y = PY + t * (H - PY * 2);
+          const val = maxW - t * range;
+          return (
+            <g key={t}>
+              <line x1={PX} y1={y} x2={W - PX} y2={y} stroke="#f0e0c8" strokeWidth="1" />
+              <text x={PX - 4} y={y + 4} textAnchor="end" fontSize="9" fill="#c0a898">{val.toFixed(1)}</text>
+            </g>
+          );
+        })}
+        {/* エリア */}
+        <path d={area} fill="#c49a6c22" />
+        {/* ライン */}
+        <polyline points={points} fill="none" stroke="#c49a6c" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
+        {/* ドット＋日付ラベル */}
+        {sorted.map((r, i) => {
+          const x = toX(i);
+          const y = toY(r.weight);
+          const d = new Date(r.date + 'T00:00:00');
+          const label = `${d.getMonth() + 1}/${d.getDate()}`;
+          return (
+            <g key={r.date}>
+              <circle cx={x} cy={y} r="4" fill="#c49a6c" stroke="white" strokeWidth="2" />
+              <text x={x} y={H - 2} textAnchor="middle" fontSize="9" fill="#9c7b6a">{label}</text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
 export default function WeightView({ records, onSave, onBack }: Props) {
   const today = todayStr();
   const sorted = [...records].sort((a, b) => b.date.localeCompare(a.date));
@@ -97,6 +152,9 @@ export default function WeightView({ records, onSave, onBack }: Props) {
           </div>
         )}
       </div>
+
+      {/* グラフ */}
+      <WeightChart records={records} />
 
       {/* 入力 */}
       <div className="weight-input-card">
