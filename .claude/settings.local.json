@@ -59,7 +59,12 @@
       "Bash(ipconfig getifaddr *)",
       "Bash(node migrate_leo.mjs)",
       "Bash(git commit -m 'faviconを帽子エマの画像に変更 *)",
-      "Bash(git commit -m 'Safariホーム画面追加用アイコンを設定 *)"
+      "Bash(git commit -m 'Safariホーム画面追加用アイコンを設定 *)",
+      "Bash(python3 -)",
+      "Bash(python3 -c \"import sys; print\\(sys.version\\)\")",
+      "Bash(/usr/bin/pip3 install *)",
+      "Bash(brew install *)",
+      "Bash(npm list *)"
     ]
   }
 }
