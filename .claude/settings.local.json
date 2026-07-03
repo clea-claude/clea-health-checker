@@ -64,7 +64,8 @@
       "Bash(python3 -c \"import sys; print\\(sys.version\\)\")",
       "Bash(/usr/bin/pip3 install *)",
       "Bash(brew install *)",
-      "Bash(npm list *)"
+      "Bash(npm list *)",
+      "Bash(grep -iE \"\\\\.\\(png|jpg|jpeg|svg|ico|webp\\)$\")"
     ]
   }
 }
