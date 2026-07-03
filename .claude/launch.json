@@ -7,6 +7,13 @@
       "runtimeArgs": ["run", "dev"],
       "port": 5173,
       "autoPort": true
+    },
+    {
+      "name": "korean-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "/Users/yumi/Claude code/きらふわ한국어単語帳", "run", "dev"],
+      "port": 5273,
+      "autoPort": true
     }
   ]
 }
