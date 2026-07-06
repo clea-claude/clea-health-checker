@@ -9,10 +9,17 @@
       "autoPort": true
     },
     {
-      "name": "korean-dev",
+      "name": "korean-v2-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "/Users/yumi/Claude code/きらふわ한국어単語帳", "run", "dev"],
-      "port": 5273,
+      "runtimeArgs": ["--prefix", "/Users/yumi/Claude code/きらふわ한국어単語帳v2", "run", "dev"],
+      "port": 5373,
+      "autoPort": true
+    },
+    {
+      "name": "kokki-quest-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "/Users/yumi/Claude code/国旗クエスト", "run", "dev"],
+      "port": 5375,
       "autoPort": true
     }
   ]

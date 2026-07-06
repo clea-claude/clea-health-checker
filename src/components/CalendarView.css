@@ -32,6 +32,50 @@
 }
 .cal-nav:hover { background: #f5e6d0; }
 
+/* フィルターチップ */
+.cal-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.cal-filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #faf4ec;
+  border: 1.5px solid #f0e0c8;
+  border-radius: 20px;
+  padding: 5px 10px;
+  font-size: 0.72rem;
+  color: #9c7b6a;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.cal-filter-chip:hover { background: #f5e6d0; }
+.cal-filter-chip.active {
+  background: #c49a6c;
+  border-color: #c49a6c;
+  color: white;
+  font-weight: 700;
+}
+
+.cal-filter-count {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #5c4033;
+  background: #fdf0e0;
+  border-radius: 12px;
+  padding: 8px 0;
+  margin-bottom: 10px;
+}
+.cal-filter-count strong {
+  font-size: 1.1rem;
+  color: #c49a6c;
+}
+
 .cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -82,6 +126,16 @@
 .cal-day.future {
   opacity: 0.3;
   cursor: default;
+}
+
+/* フィルターモード：達成日 */
+.cal-day.filter-done {
+  background: #d4f0d8;
+  border-color: #7dbf8e;
+}
+.cal-day-icon {
+  font-size: 0.85rem;
+  line-height: 1;
 }
 
 .cal-day-num {
