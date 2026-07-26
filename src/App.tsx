@@ -95,6 +95,7 @@ export default function App() {
   const [user, setUser] = useState<User | null | undefined>(undefined); // undefined = loading
   const [nickname, setNickname] = useState<string | null>(null); // null = プロフィール未ロード
   const [profilePhoto, setProfilePhoto] = useState<string>('');
+  const [loadError, setLoadError] = useState(false);
   const [records, setRecords] = useState<Record<string, DayRecord>>({});
   const [seiriRecords, setSeiriRecords] = useState<SeiriRecord[]>([]);
   const [weightRecords, setWeightRecords] = useState<WeightRecord[]>([]);
@@ -115,35 +116,46 @@ export default function App() {
     if (!user) return;
     const uid = user.uid;
 
+    // 安全にJSONをパース（壊れていてもクラッシュしない）
+    const safeParse = <T,>(raw: string, fallback: T): T => {
+      try { return JSON.parse(raw) as T; } catch { return fallback; }
+    };
+    // Firestoreエラーでも無限ローディングにならないようにする
+    const onErr = (e: unknown) => {
+      console.error('Firestore同期エラー:', e);
+      setLoadError(true);
+    };
+
     const unsubs = [
       onSnapshot(doc(db, 'users', uid, 'data', 'profile'), snap => {
         if (snap.exists()) {
-          const p = JSON.parse(snap.data().value) as { nickname: string; photoURL: string };
-          setNickname(p.nickname);
+          const p = safeParse(snap.data().value, { nickname: '', photoURL: '' });
+          setNickname(p.nickname ?? '');
           setProfilePhoto(p.photoURL ?? '');
         } else {
           setNickname(''); // 空文字 = プロフィール未設定（セットアップ画面へ）
         }
-      }),
+      }, onErr),
       onSnapshot(doc(db, 'users', uid, 'data', 'health'), snap => {
-        if (snap.exists()) {
-          setRecords(JSON.parse(snap.data().value));
-        }
-      }),
+        if (snap.exists()) setRecords(safeParse(snap.data().value, {}));
+      }, onErr),
       onSnapshot(doc(db, 'users', uid, 'data', 'seiri'), snap => {
-        if (snap.exists()) {
-          setSeiriRecords(JSON.parse(snap.data().value));
-        }
-      }),
+        if (snap.exists()) setSeiriRecords(safeParse(snap.data().value, []));
+      }, onErr),
       onSnapshot(doc(db, 'users', uid, 'data', 'weight'), snap => {
-        if (snap.exists()) {
-          setWeightRecords(JSON.parse(snap.data().value));
-        }
-      }),
+        if (snap.exists()) setWeightRecords(safeParse(snap.data().value, []));
+      }, onErr),
     ];
 
     return () => unsubs.forEach(u => u());
   }, [user]);
+
+  // 読み込みが長すぎる場合のタイムアウト（10秒）
+  useEffect(() => {
+    if (!user || nickname !== null) return;
+    const t = setTimeout(() => setLoadError(true), 10000);
+    return () => clearTimeout(t);
+  }, [user, nickname]);
 
   const today = todayStr();
   const todayRec = records[today];
@@ -232,9 +244,28 @@ export default function App() {
   if (user === undefined || (user && nickname === null)) {
     return (
       <div className="app" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100svh' }}>
-        <div style={{ textAlign: 'center', color: '#c49a6c', fontWeight: 700 }}>
+        <div style={{ textAlign: 'center', color: '#c49a6c', fontWeight: 700, padding: '0 24px' }}>
           <img src={randomEmmaImg} alt="エマ" style={{ width: 120, marginBottom: 16 }} />
-          <div>よみこみちゅう…</div>
+          {loadError ? (
+            <>
+              <div style={{ marginBottom: 6 }}>うまく読み込めなかったみたい💦</div>
+              <div style={{ fontSize: '0.82rem', color: '#9c7b6a', fontWeight: 400, marginBottom: 16 }}>
+                通信環境をたしかめてね
+              </div>
+              <button
+                onClick={() => window.location.reload()}
+                style={{
+                  background: '#c49a6c', color: 'white', border: 'none',
+                  borderRadius: 20, padding: '12px 28px',
+                  fontSize: '0.95rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+                }}
+              >
+                🔄 もう一度よみこむ
+              </button>
+            </>
+          ) : (
+            <div>よみこみちゅう…</div>
+          )}
         </div>
       </div>
     );

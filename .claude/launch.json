@@ -9,6 +9,13 @@
       "autoPort": true
     },
     {
+      "name": "munpop-quest-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "/Users/yumi/Claude code/ムンポプクエスト", "run", "dev"],
+      "port": 5199,
+      "autoPort": true
+    },
+    {
       "name": "korean-v2-dev",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "/Users/yumi/Claude code/きらふわ한국어単語帳v2", "run", "dev"],
@@ -20,6 +27,34 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "/Users/yumi/Claude code/国旗クエスト", "run", "dev"],
       "port": 5375,
+      "autoPort": true
+    },
+    {
+      "name": "ehon-card",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "/Users/yumi/Claude code/フラッシュカード", "run", "dev"],
+      "port": 5380,
+      "autoPort": true
+    },
+    {
+      "name": "meguro-house-guide",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "5390", "--directory", "/Users/yumi/Claude code/meguro-house-guide"],
+      "port": 5390,
+      "autoPort": true
+    },
+    {
+      "name": "sushi-typing",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "5378", "--directory", "/Users/yumi/Claude code/くるくるおすし/public"],
+      "port": 5378,
+      "autoPort": true
+    },
+    {
+      "name": "kanji-pop",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "5377", "--directory", "/Users/yumi/Claude code/かんじクエスト/public"],
+      "port": 5377,
       "autoPort": true
     }
   ]
