@@ -95,7 +95,7 @@ export default function App() {
   const [user, setUser] = useState<User | null | undefined>(undefined); // undefined = loading
   const [nickname, setNickname] = useState<string | null>(null); // null = プロフィール未ロード
   const [profilePhoto, setProfilePhoto] = useState<string>('');
-  const [loadError, setLoadError] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [records, setRecords] = useState<Record<string, DayRecord>>({});
   const [seiriRecords, setSeiriRecords] = useState<SeiriRecord[]>([]);
   const [weightRecords, setWeightRecords] = useState<WeightRecord[]>([]);
@@ -123,7 +123,8 @@ export default function App() {
     // Firestoreエラーでも無限ローディングにならないようにする
     const onErr = (e: unknown) => {
       console.error('Firestore同期エラー:', e);
-      setLoadError(true);
+      const err = e as { code?: string; message?: string };
+      setLoadError(err.code ?? err.message ?? '不明なエラー');
     };
 
     const unsubs = [
@@ -150,10 +151,10 @@ export default function App() {
     return () => unsubs.forEach(u => u());
   }, [user]);
 
-  // 読み込みが長すぎる場合のタイムアウト（10秒）
+  // 読み込みが長すぎる場合のタイムアウト（20秒）
   useEffect(() => {
     if (!user || nickname !== null) return;
-    const t = setTimeout(() => setLoadError(true), 10000);
+    const t = setTimeout(() => setLoadError(prev => prev ?? 'timeout（20秒たっても応答なし）'), 20000);
     return () => clearTimeout(t);
   }, [user, nickname]);
 
@@ -249,8 +250,17 @@ export default function App() {
           {loadError ? (
             <>
               <div style={{ marginBottom: 6 }}>うまく読み込めなかったみたい💦</div>
-              <div style={{ fontSize: '0.82rem', color: '#9c7b6a', fontWeight: 400, marginBottom: 16 }}>
-                通信環境をたしかめてね
+              <div style={{
+                fontSize: '0.78rem', color: '#c06060', fontWeight: 400, marginBottom: 8,
+                background: '#fde8e8', borderRadius: 10, padding: '8px 12px',
+                wordBreak: 'break-all', maxWidth: 320, margin: '0 auto 8px',
+              }}>
+                エラー内容: {loadError}
+              </div>
+              <div style={{ fontSize: '0.78rem', color: '#9c7b6a', fontWeight: 400, marginBottom: 16, maxWidth: 320, margin: '0 auto 16px', lineHeight: 1.6 }}>
+                {loadError.includes('permission') ? 'データベースのアクセス権限の問題みたい。Firestoreルールを確認してね。'
+                  : loadError.includes('unavailable') || loadError.includes('timeout') ? '通信がブロックされているかも。Wi-Fiを切り替えるか、少し待ってから試してみてね。'
+                  : 'この画面をスクリーンショットして開発者に見せてね。'}
               </div>
               <button
                 onClick={() => window.location.reload()}
