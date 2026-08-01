@@ -9,9 +9,9 @@
       "autoPort": true
     },
     {
-      "name": "munpop-quest-dev",
+      "name": "hangul-quest-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "/Users/yumi/Claude code/ムンポプクエスト", "run", "dev"],
+      "runtimeArgs": ["--prefix", "/Users/yumi/Claude code/ハングルクエスト", "run", "dev"],
       "port": 5199,
       "autoPort": true
     },

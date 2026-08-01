@@ -13,6 +13,7 @@ import BackupView from './components/BackupView';
 import HistoryView from './components/HistoryView';
 import DaySummaryView from './components/DaySummaryView';
 import ProfileSetupView from './components/ProfileSetupView';
+import NotificationView from './components/NotificationView';
 import emma1  from './assets/emma/emma_1.png';
 import emma2  from './assets/emma/emma_2.png';
 import emma3  from './assets/emma/emma_3.png';
@@ -40,7 +41,7 @@ const EMMA_IMAGES = [
 ];
 
 
-type View = 'home' | 'record' | 'points-guide' | 'seiri' | 'weight' | 'backup' | 'history' | 'day-summary' | 'profile-edit';
+type View = 'home' | 'record' | 'points-guide' | 'seiri' | 'weight' | 'backup' | 'history' | 'day-summary' | 'profile-edit' | 'notification';
 
 function getThisWeekDates(): string[] {
   const now = new Date();
@@ -336,6 +337,9 @@ export default function App() {
                 💾 バックアップ
               </button>
               <div className="menu-divider" />
+              <button className="menu-item" onClick={() => { setView('notification'); setMenuOpen(false); }}>
+                🔔 通知設定
+              </button>
               <button className="menu-item" onClick={() => { setView('profile-edit'); setMenuOpen(false); }}>
                 👤 プロフィール編集
               </button>
@@ -495,6 +499,8 @@ export default function App() {
               <div className="points-guide-row"><span>😵 6時間未満</span><span className="neg">-10pt</span></div>
             </div>
           </div>
+        ) : view === 'notification' ? (
+          <NotificationView uid={user.uid} onBack={() => setView('home')} />
         ) : view === 'profile-edit' ? (
           <ProfileSetupView
             initialNickname={nickname ?? ''}
