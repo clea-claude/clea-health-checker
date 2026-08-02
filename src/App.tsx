@@ -433,7 +433,7 @@ export default function App() {
             </div>
             <div className="home-calendar-section">
               <div className="home-calendar-header">📅 カレンダー</div>
-              <CalendarView records={records} onSelectDate={handleSelectDate} />
+              <CalendarView records={records} seiriRecords={seiriRecords} onSelectDate={handleSelectDate} />
             </div>
           </div>
         ) : view === 'day-summary' ? (

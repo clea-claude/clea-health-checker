@@ -1,12 +1,53 @@
 import { useState } from 'react';
-import type { DayRecord } from '../types';
-import { todayStr, calcPoints, getStreak } from '../utils';
+import type { DayRecord, SeiriRecord } from '../types';
+import { todayStr, calcPoints, getStreak, calcNextPeriodDate } from '../utils';
 import './CalendarView.css';
 
 interface Props {
   records: Record<string, DayRecord>;
+  seiriRecords: SeiriRecord[];
   onSelectDate: (date: string) => void;
 }
+
+function addDays(dateStr: string, days: number): string {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + days);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+// 生理予定日から排卵日・妊娠可能期間のマーカーを作る
+// 排卵日 ≒ 次回生理予定日の14日前（一般的な目安）
+type CycleMarker = 'period' | 'ovu-high' | 'ovu-mid' | 'ovu-low';
+
+function buildCycleMarkers(seiriRecords: SeiriRecord[]): Record<string, CycleMarker> {
+  const next = calcNextPeriodDate(seiriRecords);
+  if (!next) return {};
+  const markers: Record<string, CycleMarker> = {};
+  const ovulation = addDays(next, -14);
+  // 可能性 低め：排卵5〜4日前・排卵翌日
+  markers[addDays(ovulation, -5)] = 'ovu-low';
+  markers[addDays(ovulation, -4)] = 'ovu-low';
+  markers[addDays(ovulation, 1)]  = 'ovu-low';
+  // 中くらい：排卵3日前
+  markers[addDays(ovulation, -3)] = 'ovu-mid';
+  // 高い：排卵2日前〜排卵日
+  markers[addDays(ovulation, -2)] = 'ovu-high';
+  markers[addDays(ovulation, -1)] = 'ovu-high';
+  markers[ovulation] = 'ovu-high';
+  // 生理予定日（最優先で上書き）
+  markers[next] = 'period';
+  return markers;
+}
+
+const MARKER_HEART: Record<CycleMarker, { char: string; color: string; opacity: number }> = {
+  'period':   { char: '♥', color: '#e05a7a', opacity: 1 },
+  'ovu-high': { char: '♥', color: '#4a7fd4', opacity: 1 },
+  'ovu-mid':  { char: '♥', color: '#4a7fd4', opacity: 0.55 },
+  'ovu-low':  { char: '♥', color: '#4a7fd4', opacity: 0.28 },
+};
 
 function pointsColorClass(pts: number): string {
   if (pts < 0)  return 'pts-neg';
@@ -31,13 +72,14 @@ const FILTER_ITEMS: FilterItem[] = [
   { key: 'sleep',      label: '睡眠7h以上',    emoji: '😴', done: r => r.sleepMinutes >= 7 * 60 },
 ];
 
-export default function CalendarView({ records, onSelectDate }: Props) {
+export default function CalendarView({ records, seiriRecords, onSelectDate }: Props) {
   const today = todayStr();
   const [viewYear, setViewYear] = useState(new Date().getFullYear());
   const [viewMonth, setViewMonth] = useState(new Date().getMonth());
   const [filterKey, setFilterKey] = useState<string | null>(null);
 
   const filter = FILTER_ITEMS.find(f => f.key === filterKey) ?? null;
+  const cycleMarkers = buildCycleMarkers(seiriRecords);
 
   const prevMonth = () => {
     if (viewMonth === 0) { setViewYear(y => y - 1); setViewMonth(11); }
@@ -126,17 +168,25 @@ export default function CalendarView({ records, onSelectDate }: Props) {
             );
           }
 
-          // 通常モード：ポイント色分け
+          // 通常モード：ポイント色分け＋周期マーカー
           const pts = rec ? calcPoints(rec, getStreak(records, key)) : null;
           const colorClass = pts !== null ? pointsColorClass(pts) : '';
+          const marker = cycleMarkers[key];
+          const heart = marker ? MARKER_HEART[marker] : null;
           return (
             <button
               key={key}
               className={`cal-day ${colorClass} ${isToday ? 'is-today' : ''} ${isFuture ? 'future' : ''}`}
               onClick={() => !isFuture && onSelectDate(key)}
               disabled={isFuture}
+              style={heart && isFuture ? { opacity: 0.85 } : undefined}
             >
               <span className="cal-day-num">{day}</span>
+              {heart && (
+                <span className="cal-day-heart" style={{ color: heart.color, opacity: heart.opacity }}>
+                  {heart.char}
+                </span>
+              )}
             </button>
           );
         })}
@@ -144,12 +194,27 @@ export default function CalendarView({ records, onSelectDate }: Props) {
 
       {/* 凡例（通常モードのみ） */}
       {!filter && (
-        <div className="cal-legend">
-          <div className="cal-legend-item"><span className="cal-legend-dot pts-neg" />マイナス</div>
-          <div className="cal-legend-item"><span className="cal-legend-dot pts-low" />〜14pt</div>
-          <div className="cal-legend-item"><span className="cal-legend-dot pts-mid" />〜29pt</div>
-          <div className="cal-legend-item"><span className="cal-legend-dot pts-high" />30pt〜</div>
-        </div>
+        <>
+          <div className="cal-legend">
+            <div className="cal-legend-item"><span className="cal-legend-dot pts-neg" />マイナス</div>
+            <div className="cal-legend-item"><span className="cal-legend-dot pts-low" />〜14pt</div>
+            <div className="cal-legend-item"><span className="cal-legend-dot pts-mid" />〜29pt</div>
+            <div className="cal-legend-item"><span className="cal-legend-dot pts-high" />30pt〜</div>
+          </div>
+          {Object.keys(cycleMarkers).length > 0 && (
+            <div className="cal-legend" style={{ borderTop: 'none', marginTop: 4, paddingTop: 0 }}>
+              <div className="cal-legend-item">
+                <span style={{ color: '#e05a7a', fontSize: '0.9rem' }}>♥</span>生理予定日
+              </div>
+              <div className="cal-legend-item">
+                <span style={{ color: '#4a7fd4', fontSize: '0.9rem' }}>♥</span>妊娠しやすい
+              </div>
+              <div className="cal-legend-item">
+                <span style={{ color: '#4a7fd4', opacity: 0.3, fontSize: '0.9rem' }}>♥</span>可能性低め
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

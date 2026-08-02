@@ -128,6 +128,13 @@
   cursor: default;
 }
 
+/* 周期マーカー（生理予定日・排卵日ハート） */
+.cal-day-heart {
+  font-size: 0.62rem;
+  line-height: 1;
+  margin-top: 1px;
+}
+
 /* フィルターモード：達成日 */
 .cal-day.filter-done {
   background: #d4f0d8;
