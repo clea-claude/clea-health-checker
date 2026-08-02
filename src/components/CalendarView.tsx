@@ -19,26 +19,39 @@ function addDays(dateStr: string, days: number): string {
 }
 
 // 生理予定日から排卵日・妊娠可能期間のマーカーを作る
-// 排卵日 ≒ 次回生理予定日の14日前（一般的な目安）
+// 排卵日 ≒ 生理予定日の14日前（一般的な目安）
+// 直近データから将来の周期をずっと先まで繰り返し予測する
+// （生理が実際に記録されると平均周期が更新され、予測も自動で修正される）
 type CycleMarker = 'period' | 'ovu-high' | 'ovu-mid' | 'ovu-low';
 
 function buildCycleMarkers(seiriRecords: SeiriRecord[]): Record<string, CycleMarker> {
   const next = calcNextPeriodDate(seiriRecords);
   if (!next) return {};
+
+  // 平均周期を計算（calcNextPeriodDateと同じロジック）
+  const starts = seiriRecords.map(r => r.startDate).sort();
+  const diffs = starts.slice(1).map((s, i) =>
+    Math.round((new Date(s).getTime() - new Date(starts[i]).getTime()) / 86400000));
+  const avg = Math.max(10, Math.round(diffs.reduce((a, b) => a + b, 0) / diffs.length));
+
   const markers: Record<string, CycleMarker> = {};
-  const ovulation = addDays(next, -14);
-  // 可能性 低め：排卵5〜4日前・排卵翌日
-  markers[addDays(ovulation, -5)] = 'ovu-low';
-  markers[addDays(ovulation, -4)] = 'ovu-low';
-  markers[addDays(ovulation, 1)]  = 'ovu-low';
-  // 中くらい：排卵3日前
-  markers[addDays(ovulation, -3)] = 'ovu-mid';
-  // 高い：排卵2日前〜排卵日
-  markers[addDays(ovulation, -2)] = 'ovu-high';
-  markers[addDays(ovulation, -1)] = 'ovu-high';
-  markers[ovulation] = 'ovu-high';
-  // 生理予定日（最優先で上書き）
-  markers[next] = 'period';
+  // 約2年先まで周期を繰り返し予測
+  for (let k = 0; k < 26; k++) {
+    const period = addDays(next, avg * k);
+    const ovulation = addDays(period, -14);
+    // 可能性 低め：排卵5〜4日前・排卵翌日
+    markers[addDays(ovulation, -5)] = 'ovu-low';
+    markers[addDays(ovulation, -4)] = 'ovu-low';
+    markers[addDays(ovulation, 1)]  = 'ovu-low';
+    // 中くらい：排卵3日前
+    markers[addDays(ovulation, -3)] = 'ovu-mid';
+    // 高い：排卵2日前〜排卵日
+    markers[addDays(ovulation, -2)] = 'ovu-high';
+    markers[addDays(ovulation, -1)] = 'ovu-high';
+    markers[ovulation] = 'ovu-high';
+    // 生理予定日（最優先で上書き）
+    markers[period] = 'period';
+  }
   return markers;
 }
 
@@ -194,27 +207,12 @@ export default function CalendarView({ records, seiriRecords, onSelectDate }: Pr
 
       {/* 凡例（通常モードのみ） */}
       {!filter && (
-        <>
-          <div className="cal-legend">
-            <div className="cal-legend-item"><span className="cal-legend-dot pts-neg" />マイナス</div>
-            <div className="cal-legend-item"><span className="cal-legend-dot pts-low" />〜14pt</div>
-            <div className="cal-legend-item"><span className="cal-legend-dot pts-mid" />〜29pt</div>
-            <div className="cal-legend-item"><span className="cal-legend-dot pts-high" />30pt〜</div>
-          </div>
-          {Object.keys(cycleMarkers).length > 0 && (
-            <div className="cal-legend" style={{ borderTop: 'none', marginTop: 4, paddingTop: 0 }}>
-              <div className="cal-legend-item">
-                <span style={{ color: '#e05a7a', fontSize: '0.9rem' }}>♥</span>生理予定日
-              </div>
-              <div className="cal-legend-item">
-                <span style={{ color: '#4a7fd4', fontSize: '0.9rem' }}>♥</span>妊娠しやすい
-              </div>
-              <div className="cal-legend-item">
-                <span style={{ color: '#4a7fd4', opacity: 0.3, fontSize: '0.9rem' }}>♥</span>可能性低め
-              </div>
-            </div>
-          )}
-        </>
+        <div className="cal-legend">
+          <div className="cal-legend-item"><span className="cal-legend-dot pts-neg" />マイナス</div>
+          <div className="cal-legend-item"><span className="cal-legend-dot pts-low" />〜14pt</div>
+          <div className="cal-legend-item"><span className="cal-legend-dot pts-mid" />〜29pt</div>
+          <div className="cal-legend-item"><span className="cal-legend-dot pts-high" />30pt〜</div>
+        </div>
       )}
     </div>
   );
