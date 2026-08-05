@@ -539,7 +539,9 @@ export default function App() {
         ) : (
           <TodayView
             records={records}
+            maintenanceRecords={maintenanceRecords}
             onSave={handleSave}
+            onSaveMaintenance={handleSaveMaintenance}
             editDate={editDate}
             onBack={() => { setView('home'); setEditDate(undefined); }}
           />

@@ -94,6 +94,8 @@ export default function MaintenanceView({ records, onSave, onBack }: Props) {
             width: '100%', boxSizing: 'border-box', padding: '10px 12px',
             border: '1.5px solid #f0e0c8', borderRadius: 12,
             fontSize: '0.95rem', fontFamily: 'inherit', color: '#5c4033', background: '#faf4ec',
+            WebkitAppearance: 'none', appearance: 'none',
+            minHeight: 44, textAlign: 'left', display: 'block',
           }}
         />
 

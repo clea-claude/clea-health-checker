@@ -84,6 +84,8 @@ const FILTER_ITEMS: FilterItem[] = [
   { key: 'nichuUndou', label: '運動',          emoji: '🏃', done: r => r.nichuUndou },
   { key: 'snackNone',  label: 'おやつ我慢',    emoji: '💪', done: r => r.snack === 'none' },
   { key: 'sleep',      label: '睡眠7h以上',    emoji: '😴', done: r => r.sleepMinutes >= 7 * 60 },
+  // メンテナンスは別データ（maintenanceRecords）から判定する特別枠
+  { key: 'maintenance', label: 'メンテナンス', emoji: '💆‍♀️', done: () => false },
 ];
 
 export default function CalendarView({ records, seiriRecords, maintenanceRecords, onSelectDate }: Props) {
@@ -118,10 +120,18 @@ export default function CalendarView({ records, seiriRecords, maintenanceRecords
   const dateKey = (day: number) =>
     `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
+  // その日がフィルター条件を達成しているか
+  const isFilterDone = (key: string): boolean => {
+    if (!filter) return false;
+    if (filter.key === 'maintenance') return maintenanceDates.has(key);
+    const rec = records[key];
+    return rec ? filter.done(rec) : false;
+  };
+
   // フィルター中の達成日数カウント
   const doneCount = filter
     ? Array.from({ length: daysInMonth }, (_, i) => dateKey(i + 1))
-        .filter(k => records[k] && filter.done(records[k]))
+        .filter(k => isFilterDone(k))
         .length
     : 0;
 
@@ -169,7 +179,7 @@ export default function CalendarView({ records, seiriRecords, maintenanceRecords
 
           if (filter) {
             // フィルターモード：達成日だけアイコン表示
-            const isDone = rec ? filter.done(rec) : false;
+            const isDone = isFilterDone(key);
             return (
               <button
                 key={key}

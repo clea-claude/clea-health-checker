@@ -1,14 +1,24 @@
 import { useState, useEffect } from 'react';
-import type { DayRecord } from '../types';
+import type { DayRecord, MaintenanceRecord } from '../types';
 import { calcSleepMinutes, formatSleep, SUIMIN_LIST, KISHO_LIST, todayStr, getStreak } from '../utils';
 import './TodayView.css';
 
 interface Props {
   records: Record<string, DayRecord>;
+  maintenanceRecords: MaintenanceRecord[];
   onSave: (date: string, rec: DayRecord) => void;
+  onSaveMaintenance: (records: MaintenanceRecord[]) => void;
   editDate?: string;
   onBack?: () => void;
 }
+
+const MAINT_CATEGORIES = [
+  { key: '整体',     emoji: '🦴' },
+  { key: 'マッサージ', emoji: '💆‍♀️' },
+  { key: 'エステ',   emoji: '✨' },
+  { key: '美容院',   emoji: '💇‍♀️' },
+  { key: 'その他',   emoji: '🌿' },
+];
 
 const EMPTY: Omit<DayRecord, 'date' | 'sleepMinutes'> = {
   haiBen: false,
@@ -50,7 +60,7 @@ function buildPointRows(
   return rows;
 }
 
-export default function TodayView({ records, onSave, editDate, onBack }: Props) {
+export default function TodayView({ records, maintenanceRecords, onSave, onSaveMaintenance, editDate, onBack }: Props) {
   const targetDate = editDate ?? todayStr();
   const existing = records[targetDate];
 
@@ -61,10 +71,18 @@ export default function TodayView({ records, onSave, editDate, onBack }: Props) 
   const [showSnackInfo, setShowSnackInfo] = useState(false);
   const [snackOpen, setSnackOpen] = useState(false);
   const [showPointsPopup, setShowPointsPopup] = useState(false);
+  const [maintOpen, setMaintOpen] = useState(false);
+  const [maintCategory, setMaintCategory] = useState('');
+  const [maintMemo, setMaintMemo] = useState('');
+
+  const dayMaintenance = maintenanceRecords.filter(r => r.date === targetDate);
 
   useEffect(() => {
     const rec = records[targetDate];
     setForm({ ...EMPTY, ...rec });
+    setMaintCategory('');
+    setMaintMemo('');
+    setMaintOpen(false);
   }, [targetDate]);
 
   const sleepMin = calcSleepMinutes(form.suiminJikan, form.kiShoBjikan);
@@ -80,6 +98,13 @@ export default function TodayView({ records, onSave, editDate, onBack }: Props) 
   };
 
   const handleSave = () => {
+    // メンテナンスが選択されていたら一緒に記録する
+    if (maintCategory) {
+      onSaveMaintenance([
+        ...maintenanceRecords,
+        { date: targetDate, category: maintCategory, memo: maintMemo.trim() || undefined },
+      ]);
+    }
     onSave(targetDate, { ...form, date: targetDate, sleepMinutes: sleepMin });
   };
 
@@ -160,6 +185,75 @@ export default function TodayView({ records, onSave, editDate, onBack }: Props) 
                 {form.snack === value && <span className="check-mark">✓</span>}
               </button>
             ))}
+          </div>
+        )}
+      </div>
+
+      {/* メンテナンスセクション */}
+      <div className="snack-section">
+        <div className="snack-title-row">
+          <button
+            className={`snack-toggle-btn ${maintOpen ? 'open' : ''} ${maintCategory || dayMaintenance.length ? 'has-value' : ''}`}
+            onClick={() => setMaintOpen(v => !v)}
+          >
+            <span className="check-emoji">💆‍♀️</span>
+            <span className="check-label">メンテナンス</span>
+            {(maintCategory || dayMaintenance.length > 0) && (
+              <span className="snack-selected-badge">
+                {maintCategory
+                  ? MAINT_CATEGORIES.find(c => c.key === maintCategory)?.emoji
+                  : MAINT_CATEGORIES.find(c => c.key === dayMaintenance[0].category)?.emoji}
+              </span>
+            )}
+            <span className="snack-arrow">{maintOpen ? '▲' : '▼'}</span>
+          </button>
+        </div>
+
+        {maintOpen && (
+          <div className="snack-options">
+            {/* この日の記録済みメンテナンス */}
+            {dayMaintenance.map((rec, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '8px 12px', background: '#faf4ec', borderRadius: 12,
+                fontSize: '0.88rem', color: '#5c4033',
+              }}>
+                <span>{MAINT_CATEGORIES.find(c => c.key === rec.category)?.emoji ?? '🌿'}</span>
+                <span style={{ flex: 1 }}>
+                  {rec.category}{rec.memo ? `｜${rec.memo}` : ''}（記録済み）
+                </span>
+                <button
+                  className="seiri-delete-btn"
+                  onClick={() => onSaveMaintenance(maintenanceRecords.filter(r => r !== rec))}
+                >✕</button>
+              </div>
+            ))}
+            {MAINT_CATEGORIES.map(({ key, emoji }) => (
+              <button
+                key={key}
+                className={`snack-option ${maintCategory === key ? 'selected' : ''}`}
+                style={maintCategory === key ? { borderColor: '#c49a6c', background: '#c49a6c18' } : {}}
+                onClick={() => setMaintCategory(k => k === key ? '' : key)}
+              >
+                <span className="snack-emoji">{emoji}</span>
+                <span className="snack-label">{key}</span>
+                {maintCategory === key && <span className="check-mark">✓</span>}
+              </button>
+            ))}
+            {maintCategory && (
+              <input
+                type="text"
+                value={maintMemo}
+                onChange={e => setMaintMemo(e.target.value)}
+                placeholder="詳細メモ（任意）例：カット＆カラー"
+                maxLength={50}
+                style={{
+                  width: '100%', boxSizing: 'border-box', padding: '10px 12px',
+                  border: '1.5px solid #f0e0c8', borderRadius: 12,
+                  fontSize: '0.9rem', fontFamily: 'inherit', color: '#5c4033', background: 'white',
+                }}
+              />
+            )}
           </div>
         )}
       </div>
