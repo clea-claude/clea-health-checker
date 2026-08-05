@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import type { DayRecord, SeiriRecord } from '../types';
+import type { DayRecord, SeiriRecord, MaintenanceRecord } from '../types';
 import { todayStr, calcPoints, getStreak, calcNextPeriodDate } from '../utils';
 import './CalendarView.css';
 
 interface Props {
   records: Record<string, DayRecord>;
   seiriRecords: SeiriRecord[];
+  maintenanceRecords: MaintenanceRecord[];
   onSelectDate: (date: string) => void;
 }
 
@@ -85,7 +86,7 @@ const FILTER_ITEMS: FilterItem[] = [
   { key: 'sleep',      label: '睡眠7h以上',    emoji: '😴', done: r => r.sleepMinutes >= 7 * 60 },
 ];
 
-export default function CalendarView({ records, seiriRecords, onSelectDate }: Props) {
+export default function CalendarView({ records, seiriRecords, maintenanceRecords, onSelectDate }: Props) {
   const today = todayStr();
   const [viewYear, setViewYear] = useState(new Date().getFullYear());
   const [viewMonth, setViewMonth] = useState(new Date().getMonth());
@@ -93,6 +94,7 @@ export default function CalendarView({ records, seiriRecords, onSelectDate }: Pr
 
   const filter = FILTER_ITEMS.find(f => f.key === filterKey) ?? null;
   const cycleMarkers = buildCycleMarkers(seiriRecords);
+  const maintenanceDates = new Set(maintenanceRecords.map(r => r.date));
 
   const prevMonth = () => {
     if (viewMonth === 0) { setViewYear(y => y - 1); setViewMonth(11); }
@@ -195,9 +197,12 @@ export default function CalendarView({ records, seiriRecords, onSelectDate }: Pr
               style={heart && isFuture ? { opacity: 0.85 } : undefined}
             >
               <span className="cal-day-num">{day}</span>
-              {heart && (
-                <span className="cal-day-heart" style={{ color: heart.color, opacity: heart.opacity }}>
-                  {heart.char}
+              {(heart || maintenanceDates.has(key)) && (
+                <span className="cal-day-heart">
+                  {heart && (
+                    <span style={{ color: heart.color, opacity: heart.opacity }}>{heart.char}</span>
+                  )}
+                  {maintenanceDates.has(key) && <span>💆‍♀️</span>}
                 </span>
               )}
             </button>

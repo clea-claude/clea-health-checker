@@ -24,3 +24,9 @@ export interface WeightRecord {
   date: string;   // YYYY-MM-DD
   weight: number; // kg
 }
+
+export interface MaintenanceRecord {
+  date: string;     // YYYY-MM-DD
+  category: string; // 整体・マッサージ・エステ・美容院・その他
+  memo?: string;    // 詳細メモ
+}

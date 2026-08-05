@@ -3,7 +3,8 @@ import type { User } from 'firebase/auth';
 import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 import { doc, onSnapshot, setDoc, deleteDoc } from 'firebase/firestore';
 import { auth, db, googleProvider } from './firebase';
-import type { DayRecord, SeiriRecord, WeightRecord } from './types';
+import type { DayRecord, SeiriRecord, WeightRecord, MaintenanceRecord } from './types';
+import MaintenanceView from './components/MaintenanceView';
 import { getStreak, todayStr, calcPoints, sumPointsForDays, calcNextPeriodDate } from './utils';
 import TodayView from './components/TodayView';
 import CalendarView from './components/CalendarView';
@@ -41,7 +42,7 @@ const EMMA_IMAGES = [
 ];
 
 
-type View = 'home' | 'record' | 'points-guide' | 'seiri' | 'weight' | 'backup' | 'history' | 'day-summary' | 'profile-edit' | 'notification';
+type View = 'home' | 'record' | 'points-guide' | 'seiri' | 'weight' | 'backup' | 'history' | 'day-summary' | 'profile-edit' | 'notification' | 'maintenance';
 
 function getThisWeekDates(): string[] {
   const now = new Date();
@@ -82,6 +83,12 @@ const EMMA_MESSAGES = [
   '唇を尖らせているのは集中しているサイン(フロー状態)、能力を高めている途中！✨',
   '親が機嫌よく笑顔でいることが、どんな教育や声かけよりも大事🫶',
   '間違いを訂正しない！😉自分で間違いに気づき、考えさせるべし！',
+  'すごい/えらい➡️「〜できたね！/〜したね！」✌️見たままを伝える！',
+  '今は子育てに全振りしてもいいんじゃない？😊',
+  'マイナスな経験や感情を伝えてきたら？➡️「話してくれてありがとう。」🩵',
+  '注意指摘するときは、いい点もセットで！「もりもり食べてくれて嬉しいんだけど、スプーンで食べてくれたらママもっと嬉しい！」🥺',
+  '他人と比較しない。比べるのは「過去のその子自身」➡️「前より上手になってるんじゃない？」😉',
+  '人に優しく、自分にも優しく🫶',
 ];
 
 const randomMessage = EMMA_MESSAGES[Math.floor(Math.random() * EMMA_MESSAGES.length)];
@@ -100,6 +107,7 @@ export default function App() {
   const [records, setRecords] = useState<Record<string, DayRecord>>({});
   const [seiriRecords, setSeiriRecords] = useState<SeiriRecord[]>([]);
   const [weightRecords, setWeightRecords] = useState<WeightRecord[]>([]);
+  const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>([]);
   const [view, setView] = useState<View>('home');
   const [editDate, setEditDate] = useState<string | undefined>(undefined);
   const [saved, setSaved] = useState(false);
@@ -146,6 +154,9 @@ export default function App() {
       }, onErr),
       onSnapshot(doc(db, 'users', uid, 'data', 'weight'), snap => {
         if (snap.exists()) setWeightRecords(safeParse(snap.data().value, []));
+      }, onErr),
+      onSnapshot(doc(db, 'users', uid, 'data', 'maintenance'), snap => {
+        if (snap.exists()) setMaintenanceRecords(safeParse(snap.data().value, []));
       }, onErr),
     ];
 
@@ -215,6 +226,13 @@ export default function App() {
     }
   };
 
+  const handleSaveMaintenance = async (data: MaintenanceRecord[]) => {
+    setMaintenanceRecords(data);
+    if (user) {
+      await saveToFirestore(user.uid, 'maintenance', data);
+    }
+  };
+
   const handleSelectDate = (date: string) => {
     setEditDate(date);
     if (date === today) {
@@ -236,7 +254,9 @@ export default function App() {
       deleteDoc(doc(db, 'users', uid, 'data', 'health')),
       deleteDoc(doc(db, 'users', uid, 'data', 'seiri')),
       deleteDoc(doc(db, 'users', uid, 'data', 'weight')),
+      deleteDoc(doc(db, 'users', uid, 'data', 'maintenance')),
     ]);
+    setMaintenanceRecords([]);
     setRecords({});
     setSeiriRecords([]);
     setWeightRecords([]);
@@ -325,6 +345,9 @@ export default function App() {
               </button>
               <button className="menu-item" onClick={() => { setView('weight'); setMenuOpen(false); }}>
                 ⚖️ 体重きろく
+              </button>
+              <button className="menu-item" onClick={() => { setView('maintenance'); setMenuOpen(false); }}>
+                💆‍♀️ メンテナンスDay
               </button>
               <button className="menu-item" onClick={() => { setView('history'); setMenuOpen(false); }}>
                 📊 履歴
@@ -433,7 +456,7 @@ export default function App() {
             </div>
             <div className="home-calendar-section">
               <div className="home-calendar-header">📅 カレンダー</div>
-              <CalendarView records={records} seiriRecords={seiriRecords} onSelectDate={handleSelectDate} />
+              <CalendarView records={records} seiriRecords={seiriRecords} maintenanceRecords={maintenanceRecords} onSelectDate={handleSelectDate} />
             </div>
           </div>
         ) : view === 'day-summary' ? (
@@ -451,13 +474,15 @@ export default function App() {
             records={records}
             seiriRecords={seiriRecords}
             weightRecords={weightRecords}
-            onRestore={async (health, seiri, weight) => {
+            maintenanceRecords={maintenanceRecords}
+            onRestore={async (health, seiri, weight, maintenance) => {
               if (!user) return;
               const uid = user.uid;
               await Promise.all([
                 saveToFirestore(uid, 'health', health),
                 saveToFirestore(uid, 'seiri', seiri),
                 saveToFirestore(uid, 'weight', weight),
+                saveToFirestore(uid, 'maintenance', maintenance),
               ]);
             }}
             onDeleteAll={handleDeleteAllData}
@@ -465,6 +490,8 @@ export default function App() {
           />
         ) : view === 'weight' ? (
           <WeightView records={weightRecords} onSave={handleSaveWeight} onBack={() => setView('home')} />
+        ) : view === 'maintenance' ? (
+          <MaintenanceView records={maintenanceRecords} onSave={handleSaveMaintenance} onBack={() => setView('home')} />
         ) : view === 'seiri' ? (
           <SeiriView records={seiriRecords} onSave={handleSaveSeiri} onBack={() => setView('home')} />
         ) : view === 'points-guide' ? (

@@ -1,23 +1,25 @@
 import { useRef, useState } from 'react';
-import type { DayRecord, SeiriRecord, WeightRecord } from '../types';
+import type { DayRecord, SeiriRecord, WeightRecord, MaintenanceRecord } from '../types';
 
 interface BackupData {
   exportedAt: string;
   health?: Record<string, DayRecord>;
   seiri?: SeiriRecord[];
   weight?: WeightRecord[];
+  maintenance?: MaintenanceRecord[];
 }
 
 interface Props {
   records: Record<string, DayRecord>;
   seiriRecords: SeiriRecord[];
   weightRecords: WeightRecord[];
-  onRestore: (health: Record<string, DayRecord>, seiri: SeiriRecord[], weight: WeightRecord[]) => Promise<void>;
+  maintenanceRecords: MaintenanceRecord[];
+  onRestore: (health: Record<string, DayRecord>, seiri: SeiriRecord[], weight: WeightRecord[], maintenance: MaintenanceRecord[]) => Promise<void>;
   onDeleteAll: () => Promise<void>;
   onBack: () => void;
 }
 
-export default function BackupView({ records, seiriRecords, weightRecords, onRestore, onDeleteAll, onBack }: Props) {
+export default function BackupView({ records, seiriRecords, weightRecords, maintenanceRecords, onRestore, onDeleteAll, onBack }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [importMsg, setImportMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [importing, setImporting] = useState(false);
@@ -28,6 +30,7 @@ export default function BackupView({ records, seiriRecords, weightRecords, onRes
       health: records,
       seiri: seiriRecords,
       weight: weightRecords,
+      maintenance: maintenanceRecords,
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -59,8 +62,10 @@ export default function BackupView({ records, seiriRecords, weightRecords, onRes
           (data.weight as WeightRecord[]) ??
           (rawData['kurea-weight-records'] as WeightRecord[]) ?? [];
 
+        const maintenance: MaintenanceRecord[] = (data.maintenance as MaintenanceRecord[]) ?? [];
+
         setImporting(true);
-        await onRestore(health, seiri, weight);
+        await onRestore(health, seiri, weight, maintenance);
         setImportMsg({ ok: true, text: '復元完了！データをもどしました 🐾' });
       } catch {
         setImportMsg({ ok: false, text: 'ファイルの読み込みに失敗しました。正しいバックアップファイルか確認してください。' });
