@@ -71,9 +71,16 @@ export default async function handler(req, res) {
       const seiri = parseValue(await userRef.collection('data').doc('seiri').get(), []);
       const next = calcNextPeriodDate(seiri);
       if (next && next === jstDateStr(1)) {
+        // 前日リマインド
         payload = {
           title: '🩸 生理予定日のお知らせ',
           body: '明日は生理の予定日だよ〜ナプキン用意しておこうね！',
+        };
+      } else if (next && next === jstDateStr(0)) {
+        // 当日リマインド
+        payload = {
+          title: '🩸 今日は生理の予定日',
+          body: '今日は生理の予定日だよ。きたらアプリで「開始をきろく」してね。むりせず過ごそうね🫶',
         };
       }
     }

@@ -189,13 +189,50 @@ export default function App() {
     return !weightRecords.some(r => new Date(r.date + 'T00:00:00') >= monday);
   })();
 
-  const isSeiriReminder = (() => {
+  // 生理関連の特別メッセージ（優先度順に判定）
+  const seiriMessage = (() => {
+    // ローカル時間で日付文字列を作る（UTCズレ防止）
+    const localDateStr = (offset: number) => {
+      const d = new Date();
+      d.setDate(d.getDate() + offset);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+    const todayS = localDateStr(0);
+    const tomorrowS = localDateStr(1);
+
+    const sorted = [...seiriRecords].sort((a, b) => b.startDate.localeCompare(a.startDate));
+    const latest = sorted[0];
+    const isOngoing = !!latest && !latest.endDate;
+    const daysSinceStart = latest
+      ? Math.round((new Date(todayS).getTime() - new Date(latest.startDate).getTime()) / 86400000)
+      : 0;
+
+    // ① 開始から5日たっても終了未入力 → 入力忘れの確認
+    if (isOngoing && daysSinceStart >= 5) {
+      return 'そういえば、生理はもう終わったかな？終わってたら「終了をきろく」も忘れずにね🩸';
+    }
+    // ② 生理中 → 気遣いメッセージ
+    if (isOngoing || (latest && latest.endDate && todayS >= latest.startDate && todayS <= latest.endDate)) {
+      const care = [
+        '生理中だね…むりしないで、あったかくしてゆっくり過ごしてね🩸☕',
+        '生理中はがんばりすぎなくていいんだよ。じぶんを大切にね🫶',
+        'おなか痛くない？つらい時はしっかり休んでね🩸🛋️',
+      ];
+      return care[Math.floor(Math.random() * care.length)];
+    }
     const nextDate = calcNextPeriodDate(seiriRecords);
-    if (!nextDate) return false;
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().slice(0, 10);
-    return nextDate === tomorrowStr;
+    // ③ 予定日当日
+    if (nextDate === todayS) {
+      return '今日は生理の予定日だよ🩸 きたら「開始をきろく」してね。むりせず過ごそうね';
+    }
+    // ④ 予定日前日
+    if (nextDate === tomorrowS) {
+      return '明日は生理の予定日だよ〜🩸 ナプキン用意しておこうね！';
+    }
+    return null;
   })();
 
   const handleSave = async (date: string, rec: DayRecord) => {
@@ -414,11 +451,10 @@ export default function App() {
               )}
             </div>
             <div className="speech-bubble">
-              {isSeiriReminder
-                ? '明日は生理の予定日だよ〜🩸 ナプキン用意しておこうね！'
-                : isMondayReminderNeeded
-                ? '月曜日だよ！今週の体重、測った？⚖️ きろくしてね！'
-                : randomMessage}
+              {seiriMessage
+                ?? (isMondayReminderNeeded
+                  ? '月曜日だよ！今週の体重、測った？⚖️ きろくしてね！'
+                  : randomMessage)}
             </div>
             <button className="kiroku-btn" onClick={() => { setEditDate(undefined); setView('record'); }}>
               📝 きろくする
