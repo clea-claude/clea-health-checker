@@ -53,13 +53,6 @@ export default function DaySummaryView({ date, record, records, onEdit, onBack }
       pts: 10,
     },
     {
-      label: 'おやつ',
-      emoji: record.snack === 'none' ? '💪' : record.snack === 'little' ? '🌿' : record.snack === 'ate' ? '🍬' : '—',
-      done: record.snack !== '' && record.snack !== undefined,
-      sub: record.snack === 'none' ? '我慢できた！' : record.snack === 'little' ? 'すこしだけ' : record.snack === 'ate' ? '食べちゃった' : '未記録',
-      pts: record.snack === 'none' ? 5 : record.snack === 'ate' ? -5 : 0,
-    },
-    {
       label: '睡眠',
       emoji: record.sleepMinutes >= 7 * 60 ? '😴' : record.sleepMinutes >= 6 * 60 ? '😐' : record.sleepMinutes > 0 ? '😵' : '—',
       done: record.sleepMinutes > 0,

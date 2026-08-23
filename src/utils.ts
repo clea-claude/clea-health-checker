@@ -115,9 +115,6 @@ export function calcPoints(rec: DayRecord, streak: number): number {
   if (rec.asaWalking) pts += 5;
   if (rec.nichuUndou) pts += 10;
 
-  if (rec.snack === 'none') pts += 5;
-  if (rec.snack === 'ate') pts -= 5;
-
   if (rec.sleepMinutes >= 7 * 60) pts += 10;
   else if (rec.sleepMinutes > 0 && rec.sleepMinutes < 6 * 60) pts -= 10;
 

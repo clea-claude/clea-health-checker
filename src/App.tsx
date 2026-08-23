@@ -147,7 +147,20 @@ export default function App() {
         }
       }, onErr),
       onSnapshot(doc(db, 'users', uid, 'data', 'health'), snap => {
-        if (snap.exists()) setRecords(safeParse(snap.data().value, {}));
+        if (!snap.exists()) return;
+        const loaded = safeParse<Record<string, DayRecord & { snack?: string }>>(snap.data().value, {});
+        // 旧「おやつ」項目の一括削除（機能廃止に伴う一度きりの移行）
+        if (Object.values(loaded).some(r => 'snack' in r)) {
+          const cleaned: Record<string, DayRecord> = {};
+          for (const [k, r] of Object.entries(loaded)) {
+            const { snack: _snack, ...rest } = r;
+            cleaned[k] = rest;
+          }
+          setRecords(cleaned);
+          saveToFirestore(uid, 'health', cleaned);
+        } else {
+          setRecords(loaded);
+        }
       }, onErr),
       onSnapshot(doc(db, 'users', uid, 'data', 'seiri'), snap => {
         if (snap.exists()) setSeiriRecords(safeParse(snap.data().value, []));
@@ -214,14 +227,17 @@ export default function App() {
     if (isOngoing && daysSinceStart >= 5) {
       return 'そういえば、生理はもう終わったかな？終わってたら「終了をきろく」も忘れずにね🩸';
     }
-    // ② 生理中 → 気遣いメッセージ
+    // ② 生理中 → 気遣いメッセージ（半分の確率。残りは通常の育児セリフなど）
     if (isOngoing || (latest && latest.endDate && todayS >= latest.startDate && todayS <= latest.endDate)) {
-      const care = [
-        '生理中だね…むりしないで、あったかくしてゆっくり過ごしてね🩸☕',
-        '生理中はがんばりすぎなくていいんだよ。じぶんを大切にね🫶',
-        'おなか痛くない？つらい時はしっかり休んでね🩸🛋️',
-      ];
-      return care[Math.floor(Math.random() * care.length)];
+      if (Math.random() < 0.5) {
+        const care = [
+          '生理中だね…むりしないで、あったかくしてゆっくり過ごしてね🩸☕',
+          '生理中はがんばりすぎなくていいんだよ。じぶんを大切にね🫶',
+          'おなか痛くない？つらい時はしっかり休んでね🩸🛋️',
+        ];
+        return care[Math.floor(Math.random() * care.length)];
+      }
+      return null;
     }
     const nextDate = calcNextPeriodDate(seiriRecords);
     // ③ 予定日当日
@@ -548,12 +564,6 @@ export default function App() {
               <div className="points-guide-row"><span>☘️ お通じ</span><span className="pos">+5pt</span></div>
               <div className="points-guide-row"><span>🌅 朝ウォーキング</span><span className="pos">+5pt</span></div>
               <div className="points-guide-row"><span>🏃 運動</span><span className="pos">+10pt</span></div>
-            </div>
-            <div className="points-guide-section">
-              <div className="points-guide-category">おやつ</div>
-              <div className="points-guide-row"><span>💪 我慢できた！</span><span className="pos">+5pt</span></div>
-              <div className="points-guide-row"><span>🌿 すこしだけ</span><span className="neutral">±0pt</span></div>
-              <div className="points-guide-row"><span>🍬 食べちゃった</span><span className="neg">-5pt</span></div>
             </div>
             <div className="points-guide-section">
               <div className="points-guide-category">すいみん</div>

@@ -30,16 +30,7 @@ const EMPTY: Omit<DayRecord, 'date' | 'sleepMinutes'> = {
   nichuUndou: false,
   suiminJikan: '',
   kiShoBjikan: '',
-  snack: '',
 };
-
-const SNACK_OPTIONS = [
-  { value: 'none',   label: '我慢できた！', emoji: '💪', color: '#7dbf8e' },
-  { value: 'little', label: 'すこしだけ',   emoji: '🌿', color: '#c49a6c' },
-  { value: 'ate',    label: 'おやつ食べた', emoji: '🍬', color: '#e8907a' },
-] as const;
-
-const SNACK_INFO = `「我慢できた！」何も食べなかった\n「少しだけ」量が少なかったりヘルシーなもの（300kcal以下が目安）\n「食べちゃった」🐖🤛`;
 
 function buildPointRows(
   form: Omit<DayRecord, 'date' | 'sleepMinutes'>,
@@ -52,8 +43,6 @@ function buildPointRows(
   if (form.haiBen)      rows.push({ label: 'お通じ ☘️',        pts: 5 });
   if (form.asaWalking)  rows.push({ label: '朝ウォーキング 🌅', pts: 5 });
   if (form.nichuUndou)  rows.push({ label: '運動 🏃',           pts: 10 });
-  if (form.snack === 'none') rows.push({ label: 'おやつ我慢 💪',   pts: 5 });
-  if (form.snack === 'ate')  rows.push({ label: 'おやつ食べた 🍬', pts: -5 });
   if (sleepMin >= 7 * 60)     rows.push({ label: '睡眠7h以上 😴',  pts: 10 });
   else if (sleepMin > 0 && sleepMin < 6 * 60)
     rows.push({ label: '睡眠6h未満 😵',  pts: -10 });
@@ -68,8 +57,6 @@ export default function TodayView({ records, maintenanceRecords, onSave, onSaveM
     ...EMPTY,
     ...existing,
   });
-  const [showSnackInfo, setShowSnackInfo] = useState(false);
-  const [snackOpen, setSnackOpen] = useState(false);
   const [showPointsPopup, setShowPointsPopup] = useState(false);
   const [maintOpen, setMaintOpen] = useState(false);
   const [maintCategory, setMaintCategory] = useState('');
@@ -143,50 +130,6 @@ export default function TodayView({ records, maintenanceRecords, onSave, onSaveM
             <span className="check-mark">{form[key] ? '✓' : ''}</span>
           </button>
         ))}
-      </div>
-
-      {/* おやつセクション */}
-      <div className="snack-section">
-        <div className="snack-title-row">
-          <button
-            className={`snack-toggle-btn ${snackOpen ? 'open' : ''} ${form.snack ? 'has-value' : ''}`}
-            onClick={() => setSnackOpen(v => !v)}
-          >
-            <span className="check-emoji">🍬</span>
-            <span className="check-label">おやつ</span>
-            {form.snack && (
-              <span className="snack-selected-badge">
-                {SNACK_OPTIONS.find(o => o.value === form.snack)?.emoji}
-              </span>
-            )}
-            <span className="snack-arrow">{snackOpen ? '▲' : '▼'}</span>
-          </button>
-          <div className="info-btn-wrap">
-            <button className="info-btn" onClick={() => setShowSnackInfo(v => !v)}>ⓘ</button>
-            {showSnackInfo && (
-              <div className="snack-info-tooltip">
-                {SNACK_INFO}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {snackOpen && (
-          <div className="snack-options">
-            {SNACK_OPTIONS.map(({ value, label, emoji, color }) => (
-              <button
-                key={value}
-                className={`snack-option ${form.snack === value ? 'selected' : ''}`}
-                style={form.snack === value ? { borderColor: color, background: `${color}18` } : {}}
-                onClick={() => { setForm(f => ({ ...f, snack: value })); setSnackOpen(false); }}
-              >
-                <span className="snack-emoji">{emoji}</span>
-                <span className="snack-label">{label}</span>
-                {form.snack === value && <span className="check-mark">✓</span>}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* メンテナンスセクション */}
