@@ -80,7 +80,7 @@ interface FilterItem {
 
 const FILTER_ITEMS: FilterItem[] = [
   { key: 'haiBen',     label: 'お通じ',        emoji: '☘️', done: r => r.haiBen },
-  { key: 'asaWalking', label: '朝ウォーキング', emoji: '🌅', done: r => r.asaWalking },
+  { key: 'asaWalking', label: '朝さんぽ', emoji: '🌅', done: r => r.asaWalking },
   { key: 'nichuUndou', label: '運動',          emoji: '🏃', done: r => r.nichuUndou },
   { key: 'zutsuuYaku', label: '頭痛薬',        emoji: '💊', done: r => r.zutsuuYaku },
   { key: 'sleep',      label: '睡眠7h以上',    emoji: '😴', done: r => r.sleepMinutes >= 7 * 60 },

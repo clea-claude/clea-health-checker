@@ -41,7 +41,7 @@ export default function DaySummaryView({ date, record, records, onEdit, onBack }
       pts: 5,
     },
     {
-      label: '朝ウォーキング',
+      label: '朝さんぽ',
       emoji: '🌅',
       done: record.asaWalking,
       pts: 5,

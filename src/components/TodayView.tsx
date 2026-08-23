@@ -41,7 +41,7 @@ function buildPointRows(
   const baseBonus = Math.min(streak + 1, 5);
   rows.push({ label: `きろくボーナス（${streak}日連続）`, pts: baseBonus });
   if (form.haiBen)      rows.push({ label: 'お通じ ☘️',        pts: 5 });
-  if (form.asaWalking)  rows.push({ label: '朝ウォーキング 🌅', pts: 5 });
+  if (form.asaWalking)  rows.push({ label: '朝さんぽ 🌅', pts: 5 });
   if (form.nichuUndou)  rows.push({ label: '運動 🏃',           pts: 10 });
   if (sleepMin >= 7 * 60)     rows.push({ label: '睡眠7h以上 😴',  pts: 10 });
   else if (sleepMin > 0 && sleepMin < 6 * 60)
@@ -101,7 +101,7 @@ export default function TodayView({ records, maintenanceRecords, onSave, onSaveM
     { key: 'haiBen',      label: 'お通じ',         emoji: '☘️' },
     { key: 'zutsuu',      label: '頭痛',          emoji: '🤕' },
     { key: 'zutsuuYaku',  label: '頭痛薬',        emoji: '💊' },
-    { key: 'asaWalking',  label: '朝ウォーキング', emoji: '🌅' },
+    { key: 'asaWalking',  label: '朝さんぽ', emoji: '🌅' },
     { key: 'nichuUndou',  label: '運動',          emoji: '🏃' },
   ];
 

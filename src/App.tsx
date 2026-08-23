@@ -562,7 +562,7 @@ export default function App() {
             <div className="points-guide-section">
               <div className="points-guide-category">けんこう</div>
               <div className="points-guide-row"><span>☘️ お通じ</span><span className="pos">+5pt</span></div>
-              <div className="points-guide-row"><span>🌅 朝ウォーキング</span><span className="pos">+5pt</span></div>
+              <div className="points-guide-row"><span>🌅 朝さんぽ</span><span className="pos">+5pt</span></div>
               <div className="points-guide-row"><span>🏃 運動</span><span className="pos">+10pt</span></div>
             </div>
             <div className="points-guide-section">
