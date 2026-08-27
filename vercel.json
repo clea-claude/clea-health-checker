@@ -1,6 +1,6 @@
 {
   "crons": [
-    { "path": "/api/notify?type=seiri", "schedule": "0 3 * * *" },
+    { "path": "/api/notify?type=morning", "schedule": "0 1 * * *" },
     { "path": "/api/notify?type=weight", "schedule": "0 20 * * 0" }
   ]
 }
