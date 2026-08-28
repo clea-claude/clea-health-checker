@@ -43,6 +43,23 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'unauthorized' });
   }
 
+  // 一時デバッグ用：環境変数の有無と初期化エラーだけ返す（値そのものは返さない）
+  if (req.query.type === 'debug') {
+    const out = {
+      hasServiceAccount: !!process.env.FIREBASE_SERVICE_ACCOUNT,
+      hasVapidPub: !!process.env.VAPID_PUBLIC_KEY,
+      hasVapidPriv: !!process.env.VAPID_PRIVATE_KEY,
+      hasCronSecret: !!process.env.CRON_SECRET,
+    };
+    try { initAdmin(); out.adminInit = 'ok'; } catch (e) { out.adminInit = String(e.message); }
+    try {
+      webpush.setVapidDetails('mailto:subemiviny@gmail.com',
+        process.env.VAPID_PUBLIC_KEY, process.env.VAPID_PRIVATE_KEY);
+      out.vapidInit = 'ok';
+    } catch (e) { out.vapidInit = String(e.message); }
+    return res.status(200).json(out);
+  }
+
   const type = req.query.type;
   const TYPES = ['weight', 'seiri', 'sleep', 'morning'];
   if (!TYPES.includes(type)) {
