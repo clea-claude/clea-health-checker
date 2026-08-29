@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { SeiriRecord } from '../types';
-import { todayStr, calcNextPeriodDate } from '../utils';
+import { todayStr, calcNextPeriodDate, validCycleDiffs } from '../utils';
 import './SeiriView.css';
 
 interface Props {
@@ -19,9 +19,9 @@ function formatDate(dateStr: string): string {
 }
 
 function calcAvgCycle(records: SeiriRecord[]): number | null {
-  const starts = records.map(r => r.startDate).sort();
-  if (starts.length < 2) return null;
-  const diffs = starts.slice(1).map((s, i) => daysBetween(starts[i], s));
+  // 予測（calcNextPeriodDate）と同じく、大幅に空いた間隔は除外して平均する
+  const diffs = validCycleDiffs(records);
+  if (diffs.length === 0) return null;
   return Math.round(diffs.reduce((a, b) => a + b, 0) / diffs.length);
 }
 
