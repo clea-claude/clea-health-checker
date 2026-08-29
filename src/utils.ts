@@ -94,10 +94,22 @@ export function sumPointsForDays(
   }, 0);
 }
 
-export function calcNextPeriodDate(records: SeiriRecord[]): string | null {
-  const starts = records.map(r => r.startDate).sort();
-  if (starts.length < 2) return null;
+// 周期計算に使える開始日間隔の一覧を返す。
+// 妊娠や入力忘れで大幅に空いた間隔（中央値の1.6倍超・15日未満）は予測を狂わせるので除外する
+export function validCycleDiffs(records: SeiriRecord[]): number[] {
+  const starts = Array.from(new Set(records.map(r => r.startDate))).sort();
   const diffs = starts.slice(1).map((s, i) => Math.round((new Date(s).getTime() - new Date(starts[i]).getTime()) / 86400000));
+  if (diffs.length === 0) return [];
+  const sorted = [...diffs].sort((a, b) => a - b);
+  const median = sorted[Math.floor(sorted.length / 2)];
+  const valid = diffs.filter(d => d >= 15 && d <= median * 1.6);
+  return valid.length ? valid : diffs;
+}
+
+export function calcNextPeriodDate(records: SeiriRecord[]): string | null {
+  const starts = Array.from(new Set(records.map(r => r.startDate))).sort();
+  if (starts.length < 2) return null;
+  const diffs = validCycleDiffs(records);
   const avg = Math.round(diffs.reduce((a, b) => a + b, 0) / diffs.length);
   const lastStart = starts[starts.length - 1];
   const next = new Date(lastStart);

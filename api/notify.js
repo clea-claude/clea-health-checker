@@ -19,13 +19,18 @@ function jstDateStr(daysOffset = 0) {
   return d.toISOString().slice(0, 10);
 }
 
-// 過去の生理記録から次回予定日を計算（アプリ側と同じロジック）
+// 過去の生理記録から次回予定日を計算（アプリ側 src/utils.ts と同じロジック）
+// 妊娠や入力忘れで大幅に空いた間隔（中央値の1.6倍超・15日未満）は周期計算から除外する
 function calcNextPeriodDate(records) {
-  const starts = records.map(r => r.startDate).sort();
+  const starts = [...new Set(records.map(r => r.startDate))].sort();
   if (starts.length < 2) return null;
   const diffs = starts.slice(1).map((s, i) =>
     Math.round((new Date(s).getTime() - new Date(starts[i]).getTime()) / 86400000));
-  const avg = Math.round(diffs.reduce((a, b) => a + b, 0) / diffs.length);
+  const sorted = [...diffs].sort((a, b) => a - b);
+  const median = sorted[Math.floor(sorted.length / 2)];
+  const valid = diffs.filter(d => d >= 15 && d <= median * 1.6);
+  const use = valid.length ? valid : diffs;
+  const avg = Math.round(use.reduce((a, b) => a + b, 0) / use.length);
   const next = new Date(starts[starts.length - 1]);
   next.setDate(next.getDate() + avg);
   return next.toISOString().slice(0, 10);

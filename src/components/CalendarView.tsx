@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { DayRecord, SeiriRecord, MaintenanceRecord } from '../types';
-import { todayStr, calcPoints, getStreak, calcNextPeriodDate } from '../utils';
+import { todayStr, calcPoints, getStreak, calcNextPeriodDate, validCycleDiffs } from '../utils';
 import './CalendarView.css';
 
 interface Props {
@@ -29,10 +29,8 @@ function buildCycleMarkers(seiriRecords: SeiriRecord[]): Record<string, CycleMar
   const next = calcNextPeriodDate(seiriRecords);
   if (!next) return {};
 
-  // 平均周期を計算（calcNextPeriodDateと同じロジック）
-  const starts = seiriRecords.map(r => r.startDate).sort();
-  const diffs = starts.slice(1).map((s, i) =>
-    Math.round((new Date(s).getTime() - new Date(starts[i]).getTime()) / 86400000));
+  // 平均周期を計算（calcNextPeriodDateと同じく大幅に空いた間隔は除外）
+  const diffs = validCycleDiffs(seiriRecords);
   const avg = Math.max(10, Math.round(diffs.reduce((a, b) => a + b, 0) / diffs.length));
 
   const markers: Record<string, CycleMarker> = {};
