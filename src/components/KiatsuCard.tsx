@@ -28,17 +28,17 @@ export default function KiatsuCard() {
 
   return (
     <div className={`kiatsu-card kiatsu-level-${today.level}`}>
-      <div className="kiatsu-header">🌀 きょうの気圧（東京）</div>
-      <div className="kiatsu-main">
+      <div className="kiatsu-line">
+        <span className="kiatsu-title">🌀 気圧</span>
         <span className="kiatsu-badge">{info.emoji} {info.name}</span>
         {today.maxDrop >= 3 && today.dropTime && (
-          <span className="kiatsu-detail">{today.dropTime}に −{today.maxDrop}hPa</span>
+          <span className="kiatsu-detail">{today.dropTime}に−{today.maxDrop}hPa</span>
+        )}
+        {tmrInfo && (
+          <span className="kiatsu-tomorrow">／ あした {tmrInfo.emoji}{tmrInfo.name}</span>
         )}
       </div>
-      <div className="kiatsu-message">{info.message}</div>
-      {tmrInfo && (
-        <div className="kiatsu-tomorrow">あした：{tmrInfo.emoji} {tmrInfo.name}</div>
-      )}
+      {today.level >= 1 && <div className="kiatsu-message">{info.message}</div>}
     </div>
   );
 }

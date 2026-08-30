@@ -1,55 +1,48 @@
+/* さりげない1行スタイル。注意レベルが上がったときだけメッセージ行が増える */
 .kiatsu-card {
   width: 100%;
   max-width: 360px;
   background: white;
   border: 1.5px solid #f0e0c8;
-  border-radius: 16px;
-  padding: 12px 16px;
-  margin: 14px 0 4px;
+  border-radius: 12px;
+  padding: 8px 12px;
+  margin-top: 10px;
   text-align: center;
   color: #5c4033;
 }
 
 .kiatsu-loading {
-  font-size: 0.85rem;
-  color: #b09a80;
+  font-size: 0.75rem;
+  color: #c9b69e;
 }
 
-.kiatsu-header {
-  font-size: 0.8rem;
-  color: #b09a80;
-  margin-bottom: 6px;
-}
-
-.kiatsu-main {
+.kiatsu-line {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  margin-bottom: 6px;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 0.8rem;
+}
+
+.kiatsu-title {
+  color: #b09a80;
 }
 
 .kiatsu-badge {
-  font-size: 1.1rem;
   font-weight: 700;
 }
 
-.kiatsu-detail {
-  font-size: 0.8rem;
+.kiatsu-detail,
+.kiatsu-tomorrow {
+  font-size: 0.75rem;
   color: #b09a80;
 }
 
 .kiatsu-message {
-  font-size: 0.85rem;
-  line-height: 1.5;
-}
-
-.kiatsu-tomorrow {
   font-size: 0.8rem;
-  color: #b09a80;
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px dashed #f0e0c8;
+  line-height: 1.5;
+  margin-top: 4px;
 }
 
 /* レベルに応じてふちの色をさりげなく変える */

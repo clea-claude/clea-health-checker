@@ -208,17 +208,27 @@
   padding: 0 16px 24px;
 }
 
+/* エマ＋ふきだしを横並びにするコンパクトな段 */
+.emma-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 360px;
+  margin: 10px 0 14px;
+}
+
 .emma-main-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px 0 8px;
-  width: 100%;
+  padding: 0;
+  flex: 0 0 auto;
 }
 
 .emma-main-img {
-  width: min(380px, 85vw);
-  height: min(380px, 85vw);
+  width: min(130px, 34vw);
+  height: min(130px, 34vw);
   object-fit: contain;
   filter: drop-shadow(0 4px 12px rgba(0,0,0,0.12));
   transition: filter 0.4s ease;
@@ -235,8 +245,8 @@
 }
 
 .emma-placeholder {
-  width: 180px;
-  height: 180px;
+  width: 120px;
+  height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -255,35 +265,36 @@
   background: white;
   border: 2px solid #f0e0c8;
   border-radius: 20px;
-  padding: 14px 20px;
-  margin: 12px 0 20px;
-  width: 100%;
-  max-width: 360px;
+  padding: 10px 14px;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
   text-align: center;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   color: #5c4033;
   position: relative;
-  line-height: 1.6;
+  line-height: 1.55;
 }
 
+/* しっぽは左のエマに向ける */
 .speech-bubble::before {
   content: '';
   position: absolute;
-  top: -15px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: -16px;
+  top: 50%;
+  transform: translateY(-50%);
   border: 8px solid transparent;
-  border-bottom-color: #f0e0c8;
+  border-right-color: #f0e0c8;
 }
 
 .speech-bubble::after {
   content: '';
   position: absolute;
-  top: -11px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
   border: 7px solid transparent;
-  border-bottom-color: white;
+  border-right-color: white;
 }
 
 /* きろくボタン */
@@ -406,6 +417,17 @@
   flex-direction: column;
   align-items: center;
   gap: 2px;
+  background: none;
+  border: none;
+  border-radius: 10px;
+  padding: 4px 0;
+  margin: 0 6px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.period-points-item.active {
+  background: #faf3e6;
 }
 
 .period-points-divider {

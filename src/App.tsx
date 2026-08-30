@@ -6,6 +6,7 @@ import { auth, db, googleProvider } from './firebase';
 import type { DayRecord, SeiriRecord, WeightRecord, MaintenanceRecord } from './types';
 import MaintenanceView from './components/MaintenanceView';
 import KiatsuCard from './components/KiatsuCard';
+import PointsTrendChart from './components/PointsTrendChart';
 import { getStreak, todayStr, calcPoints, sumPointsForDays, calcNextPeriodDate } from './utils';
 import TodayView from './components/TodayView';
 import CalendarView from './components/CalendarView';
@@ -110,6 +111,7 @@ export default function App() {
   const [weightRecords, setWeightRecords] = useState<WeightRecord[]>([]);
   const [maintenanceRecords, setMaintenanceRecords] = useState<MaintenanceRecord[]>([]);
   const [view, setView] = useState<View>('home');
+  const [pointsTrend, setPointsTrend] = useState<'week' | 'month' | null>(null);
   const [editDate, setEditDate] = useState<string | undefined>(undefined);
   const [saved, setSaved] = useState(false);
   const [lastPoints, setLastPoints] = useState<number | null>(null);
@@ -460,22 +462,28 @@ export default function App() {
         {view === 'home' ? (
           <div className="home-view">
             <div className="today-date-label">{dateLabel}</div>
-            <div className="emma-main-section">
-              {!imgError ? (
-                <img src={randomEmmaImg} alt="エマ" className="emma-main-img" onError={() => setImgError(true)} />
-              ) : (
-                <div className="emma-placeholder">🐾</div>
-              )}
-            </div>
-            <div className="speech-bubble">
-              {seiriMessage
-                ?? (isMondayReminderNeeded
-                  ? '月曜日だよ！今週の体重、測った？⚖️ きろくしてね！'
-                  : randomMessage)}
+            <div className="emma-row">
+              <div className="emma-main-section">
+                {!imgError ? (
+                  <img src={randomEmmaImg} alt="エマ" className="emma-main-img" onError={() => setImgError(true)} />
+                ) : (
+                  <div className="emma-placeholder">🐾</div>
+                )}
+              </div>
+              <div className="speech-bubble">
+                {seiriMessage
+                  ?? (isMondayReminderNeeded
+                    ? '月曜日だよ！今週の体重、測った？⚖️ きろくしてね！'
+                    : randomMessage)}
+              </div>
             </div>
             <button className="kiroku-btn" onClick={() => { setEditDate(undefined); setView('record'); }}>
               📝 きろくする
             </button>
+            <div className="home-calendar-section">
+              <div className="home-calendar-header">📅 カレンダー</div>
+              <CalendarView records={records} seiriRecords={seiriRecords} maintenanceRecords={maintenanceRecords} onSelectDate={handleSelectDate} />
+            </div>
             <KiatsuCard />
             <div className="stats-row">
               <div className="stat-card">
@@ -498,20 +506,29 @@ export default function App() {
               </div>
             </div>
             <div className="period-points-row">
-              <div className="period-points-item">
+              <button
+                className={`period-points-item ${pointsTrend === 'week' ? 'active' : ''}`}
+                onClick={() => setPointsTrend(pointsTrend === 'week' ? null : 'week')}
+              >
                 <span className="period-points-label">今週</span>
                 <span className="period-points-val">{weekPoints > 0 ? `+${weekPoints}` : weekPoints}pt</span>
-              </div>
+              </button>
               <div className="period-points-divider" />
-              <div className="period-points-item">
+              <button
+                className={`period-points-item ${pointsTrend === 'month' ? 'active' : ''}`}
+                onClick={() => setPointsTrend(pointsTrend === 'month' ? null : 'month')}
+              >
                 <span className="period-points-label">今月</span>
                 <span className="period-points-val">{monthPoints > 0 ? `+${monthPoints}` : monthPoints}pt</span>
-              </div>
+              </button>
             </div>
-            <div className="home-calendar-section">
-              <div className="home-calendar-header">📅 カレンダー</div>
-              <CalendarView records={records} seiriRecords={seiriRecords} maintenanceRecords={maintenanceRecords} onSelectDate={handleSelectDate} />
-            </div>
+            {pointsTrend && (
+              <PointsTrendChart
+                records={records}
+                period={pointsTrend}
+                dates={(pointsTrend === 'week' ? getThisWeekDates() : getThisMonthDates()).slice().reverse()}
+              />
+            )}
           </div>
         ) : view === 'day-summary' ? (
           <DaySummaryView

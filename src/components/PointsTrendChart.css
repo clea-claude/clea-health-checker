@@ -1,0 +1,43 @@
+.points-trend-card {
+  width: 100%;
+  max-width: 360px;
+  background: white;
+  border: 1.5px solid #f0e0c8;
+  border-radius: 16px;
+  padding: 12px 14px 8px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.points-trend-title {
+  font-size: 0.8rem;
+  color: #b09a80;
+  margin-bottom: 4px;
+}
+
+.points-trend-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.points-trend-value {
+  font-size: 9px;
+  fill: #8a6f55;
+}
+
+.points-trend-label {
+  font-size: 10px;
+  fill: #b09a80;
+}
+
+.points-trend-label.today {
+  fill: #a97c50;
+  font-weight: 700;
+}
+
+.points-trend-note {
+  font-size: 0.7rem;
+  color: #c9b69e;
+  margin-top: 2px;
+}
