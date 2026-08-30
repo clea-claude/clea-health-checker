@@ -77,7 +77,7 @@ export function hasAnyRecord(rec: DayRecord | undefined): boolean {
   if (!rec) return false;
   return (
     rec.haiBen || rec.seiriStart || rec.seiriEnd || rec.zutsuu ||
-    rec.zutsuuYaku || rec.asaWalking || rec.nichuUndou ||
+    rec.zutsuuYaku || rec.asaWalking || rec.nichuUndou || rec.ofuro ||
     !!rec.suiminJikan || !!rec.kiShoBjikan
   );
 }

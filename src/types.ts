@@ -7,6 +7,7 @@ export interface DayRecord {
   zutsuuYaku: boolean;
   asaWalking: boolean;
   nichuUndou: boolean;
+  ofuro: boolean;
   suiminJikan: string; // "20:00" など
   kiShoBjikan: string; // "06:00" など
   sleepMinutes: number;

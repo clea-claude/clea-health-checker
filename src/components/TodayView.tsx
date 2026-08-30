@@ -28,6 +28,7 @@ const EMPTY: Omit<DayRecord, 'date' | 'sleepMinutes'> = {
   zutsuuYaku: false,
   asaWalking: false,
   nichuUndou: false,
+  ofuro: false,
   suiminJikan: '',
   kiShoBjikan: '',
 };
@@ -103,6 +104,7 @@ export default function TodayView({ records, maintenanceRecords, onSave, onSaveM
     { key: 'zutsuuYaku',  label: '頭痛薬',        emoji: '💊' },
     { key: 'asaWalking',  label: '朝さんぽ', emoji: '🌅' },
     { key: 'nichuUndou',  label: '運動',          emoji: '🏃' },
+    { key: 'ofuro',       label: 'お風呂',        emoji: '🛁' },
   ];
 
   const dateLabel = isToday

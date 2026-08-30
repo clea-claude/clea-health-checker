@@ -80,6 +80,7 @@ const FILTER_ITEMS: FilterItem[] = [
   { key: 'haiBen',     label: 'お通じ',        emoji: '☘️', done: r => r.haiBen },
   { key: 'asaWalking', label: '朝さんぽ', emoji: '🌅', done: r => r.asaWalking },
   { key: 'nichuUndou', label: '運動',          emoji: '🏃', done: r => r.nichuUndou },
+  { key: 'ofuro',      label: 'お風呂',        emoji: '🛁', done: r => r.ofuro },
   { key: 'zutsuuYaku', label: '頭痛薬',        emoji: '💊', done: r => r.zutsuuYaku },
   { key: 'sleep',      label: '睡眠7h以上',    emoji: '😴', done: r => r.sleepMinutes >= 7 * 60 },
   // メンテナンスは別データ（maintenanceRecords）から判定する特別枠
