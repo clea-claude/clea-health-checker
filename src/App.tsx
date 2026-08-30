@@ -5,6 +5,7 @@ import { doc, onSnapshot, setDoc, deleteDoc } from 'firebase/firestore';
 import { auth, db, googleProvider } from './firebase';
 import type { DayRecord, SeiriRecord, WeightRecord, MaintenanceRecord } from './types';
 import MaintenanceView from './components/MaintenanceView';
+import KiatsuCard from './components/KiatsuCard';
 import { getStreak, todayStr, calcPoints, sumPointsForDays, calcNextPeriodDate } from './utils';
 import TodayView from './components/TodayView';
 import CalendarView from './components/CalendarView';
@@ -475,6 +476,7 @@ export default function App() {
             <button className="kiroku-btn" onClick={() => { setEditDate(undefined); setView('record'); }}>
               📝 きろくする
             </button>
+            <KiatsuCard />
             <div className="stats-row">
               <div className="stat-card">
                 <div className="stat-label">ポイント</div>
